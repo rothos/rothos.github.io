@@ -1,1 +1,295 @@
-hello world
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>gar.lol</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Assistant&family=Libre+Baskerville&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Assistant', sans-serif;
+            color: #222;
+            background-color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1; /* Add this line to put the canvas behind other content */
+        }
+
+        .logo, .content, .social-links {
+            position: relative;
+            z-index: 1; /* Add this to ensure these elements appear above the canvas */
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 2em;
+            margin-top: -4em;
+            object-fit: contain;
+        }
+
+        .content {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 1.1em;
+            text-align: center;
+            padding: 2em;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 1em;
+        }
+
+        .nav-links a {
+            color: #259;
+            text-decoration: none;
+            background-color: transparent;
+            padding: 0.5em 1em;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            background-color: #edf6fb;
+        }
+
+        .social-links {
+            margin-top: 2em;
+            display: flex;
+            gap: 1.5em;
+            justify-content: center;
+        }
+
+        .social-links a {
+            color: #444;
+            transition: color 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: #369;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .logo {
+                width: 100px;
+                height: 100px;
+                margin-bottom: 1.5em;
+            }
+
+            .content {
+                padding: 1.5em;
+                margin: 1em;
+            }
+            
+            .nav-links a {
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="spiralCanvas"></canvas>
+
+    <img src="moonface.png" class="logo" alt="Logo">
+
+    <div class="content">
+        hello world<br><br>come back soon<br><br><img src='cone.png' width=80 height=100/>
+        <!--
+        <nav class="nav-links">
+            <a href="/blog">Blog</a>
+            <a href="/Projects">Projects</a>
+            <a href="/resources">Resources</a>
+            <a href="/about">About</a>
+        </nav>
+        -->
+    </div>
+
+    <div class="social-links">
+        <a href="https://github.com/rothos" target="_blank">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+        </a>
+        <a href="https://twitter.com/moonboi_" target="_blank">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
+        </a>
+        <a href="https://instagram.com/rothosphere" target="_blank">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        </a>
+        <a href="mailto:&#104;&#114;&#111;&#116;&#104;&#103;&#97;&#114;&#114;&#114;&#114;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;" class="email-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        </a>
+    </div>
+
+
+    <script>
+        const canvas = document.getElementById('spiralCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas to full window size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Spiral gradient settings
+        const spiralTightness = 250; // Divide by this value for the spiral effect
+        const animationSpeed = -.28; // Speed of the hue shift in degrees per frame
+        let time = 0;
+
+        // Noise settings
+        // const noiseIntensity = 0.9; // Control how strong the noise effect is (0 to 1)
+        // const noiseSpread = 7; // Standard deviation of Gaussian noise
+        const noiseIntensity = 0.1; // Control how strong the noise effect is (0 to 1)
+        const noiseSpread = 40; // Standard deviation of Gaussian noise
+        // const noiseSpread = 60; // Standard deviation of Gaussian noise
+        const noiseUpdateFraction = 0.4; // Fraction of pixels to update per frame
+        let noiseArray = [];
+
+        // Function to initialize noise array
+        function initializeNoiseArray() {
+            const { width, height } = canvas;
+            noiseArray = new Array(width * height);
+            for (let i = 0; i < noiseArray.length; i++) {
+                noiseArray[i] = generateGaussianNoise(noiseSpread);
+            }
+        }
+
+        // Function to partially update the noise array
+        function updateNoiseArray() {
+            const totalPixels = noiseArray.length;
+            const pixelsToUpdate = Math.floor(totalPixels * noiseUpdateFraction);
+
+            for (let i = 0; i < pixelsToUpdate; i++) {
+                const randomIndex = Math.floor(Math.random() * totalPixels);
+                noiseArray[randomIndex] = generateGaussianNoise(noiseSpread);
+            }
+        }
+
+        // Function to render spiral gradient
+        function renderSpiralGradient() {
+            const { width, height } = canvas;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const imageData = ctx.createImageData(width, height);
+            const data = imageData.data;
+            
+            const pixelSize = 2; // Size of pixel blocks
+
+            for (let y = 0; y < height; y += pixelSize) {
+                for (let x = 0; x < width; x += pixelSize) {
+                    // Calculate the center of the pixel block
+                    const blockCenterX = x + pixelSize / 2;
+                    const blockCenterY = y + pixelSize / 2;
+                    
+                    const dx = blockCenterX - centerX;
+                    const dy = blockCenterY - centerY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    // Calculate base angle in range [-π, π]
+                    const baseAngle = Math.atan2(dy, dx);
+
+                    // Create a continuous angle that smoothly transitions across the boundary
+                    let safeDistance = Math.max(distance, 0.1);
+                    let pixelValue = (
+                        baseAngle + 
+                        (distance/spiralTightness) * (
+                            0.5 + Math.sin(4 + 3*time*animationSpeed)/Math.sqrt(safeDistance)*6
+                        ) + 
+                        time * animationSpeed
+                    ) / (2 * Math.PI);
+
+                    // Ensure the result is positive before taking modulo
+                    pixelValue = ((pixelValue % 1) + 1) % 1;
+
+                    let hue = pixelValue * 360;
+
+                    const saturation = 70;
+                    const lightness = 80;
+                    const [r, g, b] = hslToRgb(hue / 360, saturation / 100, lightness / 100);
+                    const noise = noiseArray[y * width + x];
+                    const noisyR = clamp(r + noise * noiseIntensity, 0, 255);
+                    const noisyG = clamp(g + noise * noiseIntensity, 0, 255);
+                    const noisyB = clamp(b + noise * noiseIntensity, 0, 255);
+
+                    // Fill the entire pixel block with the same color
+                    for (let blockY = 0; blockY < pixelSize && y + blockY < height; blockY++) {
+                        for (let blockX = 0; blockX < pixelSize && x + blockX < width; blockX++) {
+                            const index = ((y + blockY) * width + (x + blockX)) * 4;
+                            data[index] = noisyR;
+                            data[index + 1] = noisyG;
+                            data[index + 2] = noisyB;
+                            data[index + 3] = 255;
+                        }
+                    }
+                }
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+            time += 0.03;
+            updateNoiseArray();
+            requestAnimationFrame(renderSpiralGradient);
+        }
+
+
+        // Convert HSL to RGB
+        function hslToRgb(h, s, l) {
+            let r, g, b;
+            if (s === 0) {
+                r = g = b = l; // achromatic
+            } else {
+                const hue2rgb = (p, q, t) => {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1 / 6) return p + (q - p) * 6 * t;
+                    if (t < 1 / 2) return q;
+                    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+                    return p;
+                };
+                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                const p = 2 * l - q;
+                r = hue2rgb(p, q, h + 1 / 3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1 / 3);
+            }
+            return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+        }
+
+        // Generate Gaussian noise
+        function generateGaussianNoise(spread) {
+            // Box-Muller transform for Gaussian distribution
+            let u = 1 - Math.random();
+            let v = 1 - Math.random();
+            return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v) * spread;
+        }
+
+        // Clamp function to ensure values are within 0-255 range
+        function clamp(value, min, max) {
+            return Math.max(min, Math.min(max, value));
+        }
+
+        // Initialize noise and start animation
+        initializeNoiseArray();
+        renderSpiralGradient();
+    </script>
+</body>
+</html>
