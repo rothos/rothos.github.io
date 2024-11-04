@@ -158,62 +158,68 @@
         const canvas = document.getElementById('bgCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Configuration object for all parameters
+        // Configuration object
         const config = {
-            // Animation settings
-            animationSpeed: -0.08,
-            targetFPS: 60,  // Target frames per second
-            timeScale: 0.03,  // How much time passes per second
-
-            // Spiral settings
-            spiralTightness: 180,
-            radialWaveAmplitude: 0.1,    // How strong the radial waves are
-            radialWaveLength: 12,        // Spatial frequency of the waves
-            radialWaveSpeed: 0.8,          // How fast the waves move outward
-
-            // Rendering settings
-            spiralPixelSize: 4,  // Size of spiral pixel blocks
-            noisePixelSize: 1,   // Size of noise pixel blocks
-
-            // Noise settings
-            noiseIntensity: 0.066,
-            noiseSpread: 40,
-            noiseUpdateFraction: 0.3,
-            tileSize: 200,
-
-            // Color settings
-            saturation: 70,
-            lightness: 80
+            animation: {
+                speed: -0.08,
+                targetFPS: 60,
+                timeScale: 0.03
+            },
+            spiral: {
+                tightness: 180,
+                radialWave: {
+                    amplitude: 0.1,
+                    length: 12,
+                    speed: 0.8
+                }
+            },
+            rendering: {
+                spiralPixelSize: 4,
+                noisePixelSize: 1
+            },
+            noise: {
+                intensity: 0.066,
+                spread: 40,
+                updateFraction: 0.3,
+                tileSize: 200
+            },
+            color: {
+                saturation: 70,
+                lightness: 80
+            }
         };
 
+        // State management
         let time = 0;
         let noiseArray = [];
-        let lastFrameTime = 0;  // Track the last frame's timestamp
+        let lastFrameTime = 0;
 
-        // Canvas resize handler
+        // Canvas sizing
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         }
 
-        // Noise management
+        // Noise generation and management
         function initializeNoiseArray() {
-            noiseArray = new Array(config.tileSize * config.tileSize)
+            const tilesPerRow = Math.ceil(config.noise.tileSize / config.rendering.noisePixelSize);
+            noiseArray = new Array(tilesPerRow * tilesPerRow)
                 .fill(0)
-                .map(() => generateGaussianNoise(config.noiseSpread));
+                .map(() => generateGaussianNoise(config.noise.spread));
         }
 
         function updateNoiseArray() {
-            const totalPixels = config.tileSize * config.tileSize;
-            const pixelsToUpdate = Math.floor(totalPixels * config.noiseUpdateFraction);
+            const tilesPerRow = Math.ceil(config.noise.tileSize / config.rendering.noisePixelSize);
+            const totalTiles = tilesPerRow * tilesPerRow;
+            const tilesToUpdate = Math.floor(totalTiles * config.noise.updateFraction);
             
-            for (let i = 0; i < pixelsToUpdate; i++) {
-                const randomIndex = Math.floor(Math.random() * totalPixels);
-                noiseArray[randomIndex] = generateGaussianNoise(config.noiseSpread);
+            for (let i = 0; i < tilesToUpdate; i++) {
+                const randomIndex = Math.floor(Math.random() * totalTiles);
+                noiseArray[randomIndex] = generateGaussianNoise(config.noise.spread);
             }
         }
 
-        // Color conversion utilities
+        // Color utilities
         function hslToRgb(h, s, l) {
             let r, g, b;
             if (s === 0) {
@@ -248,67 +254,62 @@
 
         // Main rendering function
         function renderSpiralGradient(currentTime) {
-
-            // Calculate delta time in seconds
+            // Calculate frame timing
             const deltaTime = (currentTime - lastFrameTime) / 1000;
             lastFrameTime = currentTime;
 
-            // Skip frame if deltaTime is too large (e.g., when tab was inactive)
-            if (deltaTime > 1/15) {  // Skip if frame took longer than 1/15th of a second
+            // Skip frame if too much time has passed
+            if (deltaTime > 1/15) {
                 requestAnimationFrame(renderSpiralGradient);
                 return;
             }
 
-            // Calculate time increment based on target FPS
-            const timeIncrement = config.timeScale * (deltaTime * config.targetFPS);
-
+            const timeIncrement = config.animation.timeScale * (deltaTime * config.animation.targetFPS);
             const { width, height } = canvas;
             const centerX = width / 2;
             const centerY = height / 2;
             const imageData = ctx.createImageData(width, height);
             const data = imageData.data;
 
-            // Render spiral with larger pixel blocks
-            for (let y = 0; y < height; y += config.spiralPixelSize) {
-                for (let x = 0; x < width; x += config.spiralPixelSize) {
-                    // Calculate spiral color
-                    const dx = (x + config.spiralPixelSize/2) - centerX;
-                    const dy = (y + config.spiralPixelSize/2) - centerY;
+            // Render spiral pattern
+            for (let y = 0; y < height; y += config.rendering.spiralPixelSize) {
+                for (let x = 0; x < width; x += config.rendering.spiralPixelSize) {
+                    const dx = (x + config.rendering.spiralPixelSize/2) - centerX;
+                    const dy = (y + config.rendering.spiralPixelSize/2) - centerY;
                     const distance = Math.sqrt(dx * dx + dy * dy);
                     const baseAngle = Math.atan2(dy, dx);
                     
                     const safeDistance = Math.max(distance, 0.1);
                     let pixelValue = (
                         baseAngle + 
-                        (distance/config.spiralTightness) * (
-                            0.5 + Math.sin(4 + 3*time*config.animationSpeed)/Math.sqrt(safeDistance)*6 +
-                            // New term for radial waves:
-                            config.radialWaveAmplitude * Math.sin(distance/config.radialWaveLength - time*config.radialWaveSpeed)
+                        (distance/config.spiral.tightness) * (
+                            0.5 + Math.sin(4 + 3*time*config.animation.speed)/Math.sqrt(safeDistance)*6 +
+                            config.spiral.radialWave.amplitude * 
+                            Math.sin(distance/config.spiral.radialWave.length - time*config.spiral.radialWave.speed)
                         ) + 
-                        time * config.animationSpeed
+                        time * config.animation.speed
                     ) / (2 * Math.PI);
 
                     pixelValue = ((pixelValue % 1) + 1) % 1;
-                    const hue = pixelValue * 360;
-
-                    // Get base color
                     const [r, g, b] = hslToRgb(
-                        hue / 360,
-                        config.saturation / 100,
-                        config.lightness / 100
+                        pixelValue,
+                        config.color.saturation / 100,
+                        config.color.lightness / 100
                     );
 
-                    // Apply noise with smaller pixel size
-                    for (let blockY = 0; blockY < config.spiralPixelSize && y + blockY < height; blockY++) {
-                        for (let blockX = 0; blockX < config.spiralPixelSize && x + blockX < width; blockX++) {
-                            const tileX = (x + blockX) % config.tileSize;
-                            const tileY = (y + blockY) % config.tileSize;
-                            const noise = noiseArray[tileY * config.tileSize + tileX];
+                    // Apply noise to pixel blocks
+                    for (let blockY = 0; blockY < config.rendering.spiralPixelSize && y + blockY < height; blockY++) {
+                        for (let blockX = 0; blockX < config.rendering.spiralPixelSize && x + blockX < width; blockX++) {
+                            const tileX = Math.floor((x + blockX) / config.rendering.noisePixelSize);
+                            const tileY = Math.floor((y + blockY) / config.rendering.noisePixelSize);
+                            const tilesPerRow = Math.ceil(config.noise.tileSize / config.rendering.noisePixelSize);
+                            const noiseIndex = (tileY % tilesPerRow) * tilesPerRow + (tileX % tilesPerRow);
+                            const noise = noiseArray[noiseIndex];
 
                             const noisyColor = [
-                                clamp(r + noise * config.noiseIntensity, 0, 255),
-                                clamp(g + noise * config.noiseIntensity, 0, 255),
-                                clamp(b + noise * config.noiseIntensity, 0, 255)
+                                clamp(r + noise * config.noise.intensity, 0, 255),
+                                clamp(g + noise * config.noise.intensity, 0, 255),
+                                clamp(b + noise * config.noise.intensity, 0, 255)
                             ];
 
                             const index = ((y + blockY) * width + (x + blockX)) * 4;
@@ -322,16 +323,16 @@
             }
 
             ctx.putImageData(imageData, 0, 0);
-            time += timeIncrement; // Update time with normalized increment
+            time += timeIncrement;
             updateNoiseArray();
             requestAnimationFrame(renderSpiralGradient);
         }
 
-        // Initialize and start
+        // Initialize and start animation
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
         initializeNoiseArray();
-        requestAnimationFrame(renderSpiralGradient);  // Pass timestamp to first frame
+        requestAnimationFrame(renderSpiralGradient);
     </script>
 </body>
 </html>
