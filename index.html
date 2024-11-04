@@ -146,10 +146,15 @@
     // Configuration object for all parameters
     const config = {
         // Animation settings
-        spiralTightness: 250,
-        animationSpeed: -0.28,
+        animationSpeed: -0.08,
         targetFPS: 60,  // Target frames per second
         timeScale: 0.03,  // How much time passes per second
+
+        // Spiral settings
+        spiralTightness: 180,
+        radialWaveAmplitude: 0.1,    // How strong the radial waves are
+        radialWaveLength: 12,        // Spatial frequency of the waves
+        radialWaveSpeed: 0.8,          // How fast the waves move outward
 
         // Rendering settings
         spiralPixelSize: 4,  // Size of spiral pixel blocks
@@ -261,7 +266,9 @@
                 let pixelValue = (
                     baseAngle + 
                     (distance/config.spiralTightness) * (
-                        0.5 + Math.sin(4 + 3*time*config.animationSpeed)/Math.sqrt(safeDistance)*6
+                        0.5 + Math.sin(4 + 3*time*config.animationSpeed)/Math.sqrt(safeDistance)*6 +
+                        // New term for radial waves:
+                        config.radialWaveAmplitude * Math.sin(distance/config.radialWaveLength - time*config.radialWaveSpeed)
                     ) + 
                     time * config.animationSpeed
                 ) / (2 * Math.PI);
