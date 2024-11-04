@@ -7,6 +7,12 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Assistant&family=Libre+Baskerville&display=swap" rel="stylesheet">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
             padding: 0;
@@ -30,53 +36,78 @@
             z-index: -1; /* Add this line to put the canvas behind other content */
         }
 
-        .logo, .content, .social-links {
+        .logo-container, .content {
             position: relative;
             z-index: 1; /* Add this to ensure these elements appear above the canvas */
         }
 
-        .logo {
+        /* Logo container - this will be exactly centered */
+        .logo-container {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
             width: 120px;
             height: 120px;
-            margin-bottom: 2em;
-            margin-top: -4em;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-container img {
+            width: 88px;
+            height: 88px;
             object-fit: contain;
         }
 
+        /* Content below logo */
         .content {
+            margin-top: 2.4rem;
             font-family: 'Libre Baskerville', serif;
-            font-size: 1.1em;
-            text-align: center;
-            padding: 2em;
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .nav-links {
+            position: absolute;
+            top: calc(50% + 60px); /* 50% + half of logo container height */
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
             flex-direction: column;
-            gap: 1em;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        /* Navigation styles */
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: .5rem;
+            align-items: center;
+        }
+
+        .nav-links li:not(:last-child)::after {
+/*            content: "·";*/
+            margin-left: .5rem;
         }
 
         .nav-links a {
-            color: #259;
+            color: #333;
+            padding: .5rem;
             text-decoration: none;
             background-color: transparent;
-            padding: 0.5em 1em;
             border-radius: 4px;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.1s ease;
         }
 
         .nav-links a:hover {
             background-color: #edf6fb;
         }
 
+        /* Social links styles */
         .social-links {
-            margin-top: 2em;
+            list-style: none;
             display: flex;
-            gap: 1.5em;
-            justify-content: center;
+            gap: 1.5rem;
         }
 
         .social-links a {
@@ -87,55 +118,39 @@
         .social-links a:hover {
             color: #369;
         }
-
-        @media only screen and (max-width: 600px) {
-            .logo {
-                width: 100px;
-                height: 100px;
-                margin-bottom: 1.5em;
-            }
-
-            .content {
-                padding: 1.5em;
-                margin: 1em;
-            }
-            
-            .nav-links a {
-                font-size: 1.1em;
-            }
-        }
     </style>
 </head>
 <body>
     <canvas id="bgCanvas"></canvas>
 
-    <img src="moonface.png" class="logo" alt="Logo">
-
-    <div class="content">
-        hello world<br><br>come back soon<br><br><img src='cone.png' width=80 height=100/>
-        <!--
-        <nav class="nav-links">
-            <a href="/blog">Blog</a>
-            <a href="/Projects">Projects</a>
-            <a href="/resources">Resources</a>
-            <a href="/about">About</a>
-        </nav>
-        -->
+    <div class="logo-container">
+        <img src="moonface.png" class="logo" alt="Logo">
     </div>
 
-    <div class="social-links">
-        <a href="https://github.com/rothos" target="_blank">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
-        </a>
-        <a href="https://twitter.com/moonboi_" target="_blank">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
-        </a>
-        <a href="https://instagram.com/rothosphere" target="_blank">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
-        </a>
-        <a href="mailto:&#104;&#114;&#111;&#116;&#104;&#103;&#97;&#114;&#114;&#114;&#114;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;" class="email-link">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-        </a>
+    <div class="content">
+        <nav>
+            <ul class="nav-links">
+                <li><a href="#">Writings</a></li>
+                <li><a href="#">Music</a></li>
+                <li><a href="#">Art</a></li>
+                <li><a href="#">Projects</a></li>
+            </ul>
+        </nav>
+
+        <div class="social-links">
+            <a href="https://github.com/rothos" target="_blank">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+            </a>
+            <a href="https://twitter.com/moonboi_" target="_blank">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
+            </a>
+            <a href="https://instagram.com/rothosphere" target="_blank">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </a>
+            <a href="mailto:&#104;&#114;&#111;&#116;&#104;&#103;&#97;&#114;&#114;&#114;&#114;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;" class="email-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            </a>
+        </div>
     </div>
 
     <script>
@@ -143,40 +158,37 @@
         const canvas = document.getElementById('bgCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Configuration object
+        // Configuration object for all parameters
         const config = {
-            animation: {
-                speed: -0.08,
-                targetFPS: 60,
-                timeScale: 0.03
-            },
-            spiral: {
-                tightness: 180,
-                radialWave: {
-                    amplitude: 0.1,
-                    length: 12,
-                    speed: 0.8
-                }
-            },
-            rendering: {
-                spiralPixelSize: 4,
-                noisePixelSize: 1
-            },
-            noise: {
-                intensity: 0.066,
-                spread: 40,
-                updateFraction: 0.3,
-                noiseTileSize: 200
-            },
-            color: {
-                saturation: 70,
-                lightness: 80
-            }
+            // Animation settings
+            animationSpeed: -0.08,
+            targetFPS: 60,  // Target frames per second
+            timeScale: 0.03,  // How much time passes per second
+
+            // Spiral settings
+            spiralTightness: 180,
+            radialWaveAmplitude: 0.1,    // How strong the radial waves are
+            radialWaveLength: 12,        // Spatial frequency of the waves
+            radialWaveSpeed: 0.8,          // How fast the waves move outward
+
+            // Rendering settings
+            spiralPixelSize: 4,  // Size of spiral pixel blocks
+            noisePixelSize: 1,   // Size of noise pixel blocks
+
+            // Noise settings
+            noiseIntensity: 0.066,
+            noiseSpread: 40,
+            noiseUpdateFraction: 0.3,
+            tileSize: 200,
+
+            // Color settings
+            saturation: 70,
+            lightness: 80
         };
 
         let time = 0;
         let noiseArray = [];
-        let lastFrameTime = 0;
+        let lastFrameTime = 0;  // Track the last frame's timestamp
 
         // Canvas resize handler
         function resizeCanvas() {
@@ -184,26 +196,24 @@
             canvas.height = window.innerHeight;
         }
 
-        // Initialize noise array with Gaussian distribution
+        // Noise management
         function initializeNoiseArray() {
-            const size = config.noise.noiseTileSize;
-            noiseArray = new Array(size * size)
+            noiseArray = new Array(config.tileSize * config.tileSize)
                 .fill(0)
-                .map(() => generateGaussianNoise(config.noise.spread));
+                .map(() => generateGaussianNoise(config.noiseSpread));
         }
 
-        // Randomly update a portion of the noise array
         function updateNoiseArray() {
-            const totalPixels = config.noise.noiseTileSize * config.noise.noiseTileSize;
-            const pixelsToUpdate = Math.floor(totalPixels * config.noise.updateFraction);
+            const totalPixels = config.tileSize * config.tileSize;
+            const pixelsToUpdate = Math.floor(totalPixels * config.noiseUpdateFraction);
             
             for (let i = 0; i < pixelsToUpdate; i++) {
                 const randomIndex = Math.floor(Math.random() * totalPixels);
-                noiseArray[randomIndex] = generateGaussianNoise(config.noise.spread);
+                noiseArray[randomIndex] = generateGaussianNoise(config.noiseSpread);
             }
         }
 
-        // Color conversion: HSL to RGB
+        // Color conversion utilities
         function hslToRgb(h, s, l) {
             let r, g, b;
             if (s === 0) {
@@ -226,120 +236,102 @@
             return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
         }
 
-        // Generate Gaussian noise
         function generateGaussianNoise(spread) {
             const u = 1 - Math.random();
             const v = 1 - Math.random();
             return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v) * spread;
         }
 
-        // Utility function to clamp values
         function clamp(value, min, max) {
             return Math.max(min, Math.min(max, value));
         }
 
-        // Calculate spiral color for a given point
-        function calculateSpiralColor(x, y, centerX, centerY) {
-            const dx = x - centerX;
-            const dy = y - centerY;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            const baseAngle = Math.atan2(dy, dx);
-            
-            const safeDistance = Math.max(distance, 0.1);
-            const wave = config.spiral.radialWave;
-            let pixelValue = (
-                baseAngle + 
-                (distance/config.spiral.tightness) * (
-                    0.5 + Math.sin(4 + 3*time*config.animation.speed)/Math.sqrt(safeDistance)*6 +
-                    wave.amplitude * Math.sin(distance/wave.length - time*wave.speed)
-                ) + 
-                time * config.animation.speed
-            ) / (2 * Math.PI);
-
-            pixelValue = ((pixelValue % 1) + 1) % 1;
-            return hslToRgb(
-                pixelValue,
-                config.color.saturation / 100,
-                config.color.lightness / 100
-            );
-        }
-
-        // Apply noise to a color
-        function applyNoise(baseColor, noiseValue) {
-            return baseColor.map(channel => 
-                clamp(channel + noiseValue * config.noise.intensity, 0, 255)
-            );
-        }
-
         // Main rendering function
         function renderSpiralGradient(currentTime) {
-            // Calculate delta time
+
+            // Calculate delta time in seconds
             const deltaTime = (currentTime - lastFrameTime) / 1000;
             lastFrameTime = currentTime;
 
-            // Skip frame if deltaTime is too large
-            if (deltaTime > 1/15) {
+            // Skip frame if deltaTime is too large (e.g., when tab was inactive)
+            if (deltaTime > 1/15) {  // Skip if frame took longer than 1/15th of a second
                 requestAnimationFrame(renderSpiralGradient);
                 return;
             }
 
-            const timeIncrement = config.animation.timeScale * (deltaTime * config.animation.targetFPS);
+            // Calculate time increment based on target FPS
+            const timeIncrement = config.timeScale * (deltaTime * config.targetFPS);
+
             const { width, height } = canvas;
             const centerX = width / 2;
             const centerY = height / 2;
             const imageData = ctx.createImageData(width, height);
             const data = imageData.data;
 
-            // Render spiral with noise
-            for (let y = 0; y < height; y += config.rendering.spiralPixelSize) {
-                for (let x = 0; x < width; x += config.rendering.spiralPixelSize) {
-                    // Calculate base color for this spiral pixel
-                    const baseColor = calculateSpiralColor(
-                        x + config.rendering.spiralPixelSize/2,
-                        y + config.rendering.spiralPixelSize/2,
-                        centerX,
-                        centerY
+            // Render spiral with larger pixel blocks
+            for (let y = 0; y < height; y += config.spiralPixelSize) {
+                for (let x = 0; x < width; x += config.spiralPixelSize) {
+                    // Calculate spiral color
+                    const dx = (x + config.spiralPixelSize/2) - centerX;
+                    const dy = (y + config.spiralPixelSize/2) - centerY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    const baseAngle = Math.atan2(dy, dx);
+                    
+                    const safeDistance = Math.max(distance, 0.1);
+                    let pixelValue = (
+                        baseAngle + 
+                        (distance/config.spiralTightness) * (
+                            0.5 + Math.sin(4 + 3*time*config.animationSpeed)/Math.sqrt(safeDistance)*6 +
+                            // New term for radial waves:
+                            config.radialWaveAmplitude * Math.sin(distance/config.radialWaveLength - time*config.radialWaveSpeed)
+                        ) + 
+                        time * config.animationSpeed
+                    ) / (2 * Math.PI);
+
+                    pixelValue = ((pixelValue % 1) + 1) % 1;
+                    const hue = pixelValue * 360;
+
+                    // Get base color
+                    const [r, g, b] = hslToRgb(
+                        hue / 360,
+                        config.saturation / 100,
+                        config.lightness / 100
                     );
 
-                    // Apply noise and fill spiral pixel
-                    for (let ny = 0; ny < config.rendering.spiralPixelSize && y + ny < height; ny += config.rendering.noisePixelSize) {
-                        for (let nx = 0; nx < config.rendering.spiralPixelSize && x + nx < width; nx += config.rendering.noisePixelSize) {
-                            const noiseX = Math.floor((x + nx) / config.rendering.noisePixelSize) % config.noise.noiseTileSize;
-                            const noiseY = Math.floor((y + ny) / config.rendering.noisePixelSize) % config.noise.noiseTileSize;
-                            const noise = noiseArray[noiseY * config.noise.noiseTileSize + noiseX];
-                            
-                            const finalColor = applyNoise(baseColor, noise);
+                    // Apply noise with smaller pixel size
+                    for (let blockY = 0; blockY < config.spiralPixelSize && y + blockY < height; blockY++) {
+                        for (let blockX = 0; blockX < config.spiralPixelSize && x + blockX < width; blockX++) {
+                            const tileX = (x + blockX) % config.tileSize;
+                            const tileY = (y + blockY) % config.tileSize;
+                            const noise = noiseArray[tileY * config.tileSize + tileX];
 
-                            // Fill noise pixel block
-                            for (let py = 0; py < config.rendering.noisePixelSize && y + ny + py < height; py++) {
-                                for (let px = 0; px < config.rendering.noisePixelSize && x + nx + px < width; px++) {
-                                    const index = ((y + ny + py) * width + (x + nx + px)) * 4;
-                                    data[index] = finalColor[0];
-                                    data[index + 1] = finalColor[1];
-                                    data[index + 2] = finalColor[2];
-                                    data[index + 3] = 255;
-                                }
-                            }
+                            const noisyColor = [
+                                clamp(r + noise * config.noiseIntensity, 0, 255),
+                                clamp(g + noise * config.noiseIntensity, 0, 255),
+                                clamp(b + noise * config.noiseIntensity, 0, 255)
+                            ];
+
+                            const index = ((y + blockY) * width + (x + blockX)) * 4;
+                            data[index] = noisyColor[0];
+                            data[index + 1] = noisyColor[1];
+                            data[index + 2] = noisyColor[2];
+                            data[index + 3] = 255;
                         }
                     }
                 }
             }
 
             ctx.putImageData(imageData, 0, 0);
-            time += timeIncrement;
+            time += timeIncrement; // Update time with normalized increment
             updateNoiseArray();
             requestAnimationFrame(renderSpiralGradient);
         }
 
         // Initialize and start
-        function init() {
-            resizeCanvas();
-            initializeNoiseArray();
-            requestAnimationFrame(renderSpiralGradient);
-        }
-
         window.addEventListener('resize', resizeCanvas);
-        init();
+        resizeCanvas();
+        initializeNoiseArray();
+        requestAnimationFrame(renderSpiralGradient);  // Pass timestamp to first frame
     </script>
 </body>
 </html>
