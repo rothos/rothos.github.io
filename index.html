@@ -45,7 +45,7 @@
         .logo-container {
             position: absolute;
             left: 50%;
-            top: 50%;
+            top: calc(50% - 50px); /* Center offset: changed from 50%; */
             transform: translate(-50%, -50%);
             width: 120px;
             height: 120px;
@@ -68,7 +68,7 @@
             margin-top: 2.4rem;
             font-family: 'Libre Baskerville', serif;
             position: absolute;
-            top: calc(50% + 60px); /* 50% + half of logo container height */
+            top: 50%; /* Center offset: changed from calc(50% + 60px) */
             left: 50%;
             transform: translateX(-50%);
             display: flex;
@@ -267,7 +267,7 @@
             const timeIncrement = config.animation.timeScale * (deltaTime * config.animation.targetFPS);
             const { width, height } = canvas;
             const centerX = width / 2;
-            const centerY = height / 2;
+            const centerY = height / 2 - 50; // Center offset: changed from height / 2;
             const imageData = ctx.createImageData(width, height);
             const data = imageData.data;
 
