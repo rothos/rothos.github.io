@@ -194,6 +194,12 @@
         let noiseArray = [];
         let lastFrameTime = 0;
 
+        let mouseVelocityX = 0;
+        let mouseVelocityY = 0;
+        let lastMouseX = null;
+        let lastMouseY = null;
+        let mouseInfluence = 0;
+
         // Canvas sizing
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -271,13 +277,23 @@
             const imageData = ctx.createImageData(width, height);
             const data = imageData.data;
 
+            mouseVelocityX *= 0.99;
+            mouseVelocityY *= 0.99;
+            mouseInfluence *= 0.99999; // Gradually reduce mouse influence when no movement is detected
+
             // Render spiral pattern
             for (let y = 0; y < height; y += config.rendering.spiralPixelSize) {
                 for (let x = 0; x < width; x += config.rendering.spiralPixelSize) {
                     const dx = (x + config.rendering.spiralPixelSize/2) - centerX;
                     const dy = (y + config.rendering.spiralPixelSize/2) - centerY;
                     const distance = Math.sqrt(dx * dx + dy * dy);
-                    const baseAngle = Math.atan2(dy, dx);
+                    // const baseAngle = Math.atan2(dy, dx);
+                    const baseAngle = Math.atan2(dy, dx) + 
+                        (mouseInfluence * (
+                            mouseVelocityX * (dy / distance) -
+                            mouseVelocityY * (dx / distance)
+                        ) * 0.01);
+
                     
                     const safeDistance = Math.max(distance, 0.1);
                     let pixelValue = (
@@ -330,6 +346,30 @@
 
         // Initialize and start animation
         window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('mousemove', (e) => {
+            if (lastMouseX !== null && lastMouseY !== null) {
+                // Calculate mouse velocity
+                const dx = e.clientX - lastMouseX;
+                const dy = e.clientY - lastMouseY;
+                
+                // Smooth out the velocity changes
+                mouseVelocityX = mouseVelocityX * 0.8 + dx * 0.1;
+                mouseVelocityY = mouseVelocityY * 0.8 + dy * 0.1;
+                
+                // Increase mouse influence when movement is detected
+                mouseInfluence = Math.min(mouseInfluence + 0.1, 1);
+            }
+            
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+        });
+
+        window.addEventListener('mouseout', () => {
+            // Don't reset the velocities immediately, let them fade naturally
+            lastMouseX = null;
+            lastMouseY = null;
+        });
+
         resizeCanvas();
         initializeNoiseArray();
         requestAnimationFrame(renderSpiralGradient);
