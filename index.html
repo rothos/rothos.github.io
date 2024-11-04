@@ -138,158 +138,178 @@
         </a>
     </div>
 
+<script>
+    // Canvas setup
+    const canvas = document.getElementById('spiralCanvas');
+    const ctx = canvas.getContext('2d');
 
-    <script>
-        const canvas = document.getElementById('spiralCanvas');
-        const ctx = canvas.getContext('2d');
+    // Configuration object for all parameters
+    const config = {
+        // Animation settings
+        spiralTightness: 250,
+        animationSpeed: -0.28,
+        targetFPS: 60,  // Target frames per second
+        timeScale: 0.03,  // How much time passes per second
 
-        // Set canvas to full window size
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
-        // Spiral gradient settings
-        const spiralTightness = 250; // Divide by this value for the spiral effect
-        const animationSpeed = -.28; // Speed of the hue shift in degrees per frame
-        let time = 0;
+        // Rendering settings
+        spiralPixelSize: 4,  // Size of spiral pixel blocks
+        noisePixelSize: 1,   // Size of noise pixel blocks
 
         // Noise settings
-        // const noiseIntensity = 0.9; // Control how strong the noise effect is (0 to 1)
-        // const noiseSpread = 7; // Standard deviation of Gaussian noise
-        const noiseIntensity = 0.1; // Control how strong the noise effect is (0 to 1)
-        const noiseSpread = 40; // Standard deviation of Gaussian noise
-        // const noiseSpread = 60; // Standard deviation of Gaussian noise
-        const noiseUpdateFraction = 0.4; // Fraction of pixels to update per frame
-        let noiseArray = [];
+        noiseIntensity: 0.066,
+        noiseSpread: 40,
+        noiseUpdateFraction: 0.3,
+        tileSize: 200,
 
-        // Function to initialize noise array
-        function initializeNoiseArray() {
-            const { width, height } = canvas;
-            noiseArray = new Array(width * height);
-            for (let i = 0; i < noiseArray.length; i++) {
-                noiseArray[i] = generateGaussianNoise(noiseSpread);
-            }
+        // Color settings
+        saturation: 70,
+        lightness: 80
+    };
+
+    let time = 0;
+    let noiseArray = [];
+    let lastFrameTime = 0;  // Track the last frame's timestamp
+
+    // Canvas resize handler
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    // Noise management
+    function initializeNoiseArray() {
+        noiseArray = new Array(config.tileSize * config.tileSize)
+            .fill(0)
+            .map(() => generateGaussianNoise(config.noiseSpread));
+    }
+
+    function updateNoiseArray() {
+        const totalPixels = config.tileSize * config.tileSize;
+        const pixelsToUpdate = Math.floor(totalPixels * config.noiseUpdateFraction);
+        
+        for (let i = 0; i < pixelsToUpdate; i++) {
+            const randomIndex = Math.floor(Math.random() * totalPixels);
+            noiseArray[randomIndex] = generateGaussianNoise(config.noiseSpread);
+        }
+    }
+
+    // Color conversion utilities
+    function hslToRgb(h, s, l) {
+        let r, g, b;
+        if (s === 0) {
+            r = g = b = l;
+        } else {
+            const hue2rgb = (p, q, t) => {
+                if (t < 0) t += 1;
+                if (t > 1) t -= 1;
+                if (t < 1/6) return p + (q - p) * 6 * t;
+                if (t < 1/2) return q;
+                if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                return p;
+            };
+            const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+            const p = 2 * l - q;
+            r = hue2rgb(p, q, h + 1/3);
+            g = hue2rgb(p, q, h);
+            b = hue2rgb(p, q, h - 1/3);
+        }
+        return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+    }
+
+    function generateGaussianNoise(spread) {
+        const u = 1 - Math.random();
+        const v = 1 - Math.random();
+        return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v) * spread;
+    }
+
+    function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+    }
+
+    // Main rendering function
+    function renderSpiralGradient(currentTime) {
+
+        // Calculate delta time in seconds
+        const deltaTime = (currentTime - lastFrameTime) / 1000;
+        lastFrameTime = currentTime;
+
+        // Skip frame if deltaTime is too large (e.g., when tab was inactive)
+        if (deltaTime > 1/15) {  // Skip if frame took longer than 1/15th of a second
+            requestAnimationFrame(renderSpiralGradient);
+            return;
         }
 
-        // Function to partially update the noise array
-        function updateNoiseArray() {
-            const totalPixels = noiseArray.length;
-            const pixelsToUpdate = Math.floor(totalPixels * noiseUpdateFraction);
+        // Calculate time increment based on target FPS
+        const timeIncrement = config.timeScale * (deltaTime * config.targetFPS);
 
-            for (let i = 0; i < pixelsToUpdate; i++) {
-                const randomIndex = Math.floor(Math.random() * totalPixels);
-                noiseArray[randomIndex] = generateGaussianNoise(noiseSpread);
-            }
-        }
+        const { width, height } = canvas;
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const imageData = ctx.createImageData(width, height);
+        const data = imageData.data;
 
-        // Function to render spiral gradient
-        function renderSpiralGradient() {
-            const { width, height } = canvas;
-            const centerX = width / 2;
-            const centerY = height / 2;
-            const imageData = ctx.createImageData(width, height);
-            const data = imageData.data;
-            
-            const pixelSize = 2; // Size of pixel blocks
+        // Render spiral with larger pixel blocks
+        for (let y = 0; y < height; y += config.spiralPixelSize) {
+            for (let x = 0; x < width; x += config.spiralPixelSize) {
+                // Calculate spiral color
+                const dx = (x + config.spiralPixelSize/2) - centerX;
+                const dy = (y + config.spiralPixelSize/2) - centerY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const baseAngle = Math.atan2(dy, dx);
+                
+                const safeDistance = Math.max(distance, 0.1);
+                let pixelValue = (
+                    baseAngle + 
+                    (distance/config.spiralTightness) * (
+                        0.5 + Math.sin(4 + 3*time*config.animationSpeed)/Math.sqrt(safeDistance)*6
+                    ) + 
+                    time * config.animationSpeed
+                ) / (2 * Math.PI);
 
-            for (let y = 0; y < height; y += pixelSize) {
-                for (let x = 0; x < width; x += pixelSize) {
-                    // Calculate the center of the pixel block
-                    const blockCenterX = x + pixelSize / 2;
-                    const blockCenterY = y + pixelSize / 2;
-                    
-                    const dx = blockCenterX - centerX;
-                    const dy = blockCenterY - centerY;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
+                pixelValue = ((pixelValue % 1) + 1) % 1;
+                const hue = pixelValue * 360;
 
-                    // Calculate base angle in range [-π, π]
-                    const baseAngle = Math.atan2(dy, dx);
+                // Get base color
+                const [r, g, b] = hslToRgb(
+                    hue / 360,
+                    config.saturation / 100,
+                    config.lightness / 100
+                );
 
-                    // Create a continuous angle that smoothly transitions across the boundary
-                    let safeDistance = Math.max(distance, 0.1);
-                    let pixelValue = (
-                        baseAngle + 
-                        (distance/spiralTightness) * (
-                            0.5 + Math.sin(4 + 3*time*animationSpeed)/Math.sqrt(safeDistance)*6
-                        ) + 
-                        time * animationSpeed
-                    ) / (2 * Math.PI);
+                // Apply noise with smaller pixel size
+                for (let blockY = 0; blockY < config.spiralPixelSize && y + blockY < height; blockY++) {
+                    for (let blockX = 0; blockX < config.spiralPixelSize && x + blockX < width; blockX++) {
+                        const tileX = (x + blockX) % config.tileSize;
+                        const tileY = (y + blockY) % config.tileSize;
+                        const noise = noiseArray[tileY * config.tileSize + tileX];
 
-                    // Ensure the result is positive before taking modulo
-                    pixelValue = ((pixelValue % 1) + 1) % 1;
+                        const noisyColor = [
+                            clamp(r + noise * config.noiseIntensity, 0, 255),
+                            clamp(g + noise * config.noiseIntensity, 0, 255),
+                            clamp(b + noise * config.noiseIntensity, 0, 255)
+                        ];
 
-                    let hue = pixelValue * 360;
-
-                    const saturation = 70;
-                    const lightness = 80;
-                    const [r, g, b] = hslToRgb(hue / 360, saturation / 100, lightness / 100);
-                    const noise = noiseArray[y * width + x];
-                    const noisyR = clamp(r + noise * noiseIntensity, 0, 255);
-                    const noisyG = clamp(g + noise * noiseIntensity, 0, 255);
-                    const noisyB = clamp(b + noise * noiseIntensity, 0, 255);
-
-                    // Fill the entire pixel block with the same color
-                    for (let blockY = 0; blockY < pixelSize && y + blockY < height; blockY++) {
-                        for (let blockX = 0; blockX < pixelSize && x + blockX < width; blockX++) {
-                            const index = ((y + blockY) * width + (x + blockX)) * 4;
-                            data[index] = noisyR;
-                            data[index + 1] = noisyG;
-                            data[index + 2] = noisyB;
-                            data[index + 3] = 255;
-                        }
+                        const index = ((y + blockY) * width + (x + blockX)) * 4;
+                        data[index] = noisyColor[0];
+                        data[index + 1] = noisyColor[1];
+                        data[index + 2] = noisyColor[2];
+                        data[index + 3] = 255;
                     }
                 }
             }
-            
-            ctx.putImageData(imageData, 0, 0);
-            time += 0.03;
-            updateNoiseArray();
-            requestAnimationFrame(renderSpiralGradient);
         }
 
+        ctx.putImageData(imageData, 0, 0);
+        time += timeIncrement; // Update time with normalized increment
+        updateNoiseArray();
+        requestAnimationFrame(renderSpiralGradient);
+    }
 
-        // Convert HSL to RGB
-        function hslToRgb(h, s, l) {
-            let r, g, b;
-            if (s === 0) {
-                r = g = b = l; // achromatic
-            } else {
-                const hue2rgb = (p, q, t) => {
-                    if (t < 0) t += 1;
-                    if (t > 1) t -= 1;
-                    if (t < 1 / 6) return p + (q - p) * 6 * t;
-                    if (t < 1 / 2) return q;
-                    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-                    return p;
-                };
-                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-                const p = 2 * l - q;
-                r = hue2rgb(p, q, h + 1 / 3);
-                g = hue2rgb(p, q, h);
-                b = hue2rgb(p, q, h - 1 / 3);
-            }
-            return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
-        }
-
-        // Generate Gaussian noise
-        function generateGaussianNoise(spread) {
-            // Box-Muller transform for Gaussian distribution
-            let u = 1 - Math.random();
-            let v = 1 - Math.random();
-            return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v) * spread;
-        }
-
-        // Clamp function to ensure values are within 0-255 range
-        function clamp(value, min, max) {
-            return Math.max(min, Math.min(max, value));
-        }
-
-        // Initialize noise and start animation
-        initializeNoiseArray();
-        renderSpiralGradient();
-    </script>
+    // Initialize and start
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+    initializeNoiseArray();
+    requestAnimationFrame(renderSpiralGradient);  // Pass timestamp to first frame
+</script>
 </body>
 </html>
