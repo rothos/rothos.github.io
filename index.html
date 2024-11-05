@@ -151,6 +151,42 @@
                     transform: scaleX(1);
                     transform-origin: left;
                 }
+
+        /* Adjusted spacing for mobile */
+        @media (max-width: 768px) {
+            .content {
+                gap: 1.1rem;  /* Reduced from 2rem */
+            }
+
+            .nav-links {
+                display: block;
+            }
+
+            .nav-links li {
+                margin-bottom: 0.5rem;
+            }
+
+            /* Remove hover-specific underline animation on mobile */
+            .nav-links a::after {
+                transform: scaleX(0);
+                transition: transform 0s ease;
+            }
+
+            /* Add active state for mobile clicks */
+            .nav-links a.active::after,
+            .social-links a.active::after {
+                transform: scaleX(1);
+            }
+
+            /* Adjust spacing between text and underline */
+            .nav-links a::after {
+                bottom: 1px;  /* Adjusted from 0 */
+            }
+
+            .social-links a::after {
+                bottom: 0px;  /* Adjusted from -2px */
+            }
+        }
     </style>
 </head>
 <body>
@@ -192,7 +228,7 @@
         const ctx = canvas.getContext('2d');
 
         // Configuration object
-        const config = {
+        const defaultConfig = {
             animation: {
                 speed: -0.08,
                 targetFPS: 60,
@@ -202,7 +238,7 @@
                 tightness: 180,
                 radialWave: {
                     amplitude: 0.1,
-                    length: 12,
+                    length: 13.5,
                     speed: 0.8
                 }
             },
@@ -222,10 +258,29 @@
             }
         };
 
+        // Mobile-specific config
+        const mobileConfig = {
+            ...defaultConfig,  // Spread existing config
+            spiral: {
+                ...defaultConfig.spiral,
+                tightness: 150,
+                radialWave: {
+                    ...defaultConfig.spiral.radialWave,
+                    amplitude: .12,
+                    length: 10
+                }
+            }
+        };
+
         // State management
         let time = 0;
         let noiseArray = [];
         let lastFrameTime = 0;
+
+        // Function to get current config based on viewport
+        function getCurrentConfig() {
+            return window.innerWidth <= 768 ? mobileConfig : defaultConfig;
+        }
 
         // Canvas sizing
         function resizeCanvas() {
@@ -235,6 +290,7 @@
 
         // Noise generation and management
         function initializeNoiseArray() {
+            const config = getCurrentConfig();
             const tilesPerRow = Math.ceil(config.noise.tileSize / config.rendering.noisePixelSize);
             noiseArray = new Array(tilesPerRow * tilesPerRow)
                 .fill(0)
@@ -242,6 +298,7 @@
         }
 
         function updateNoiseArray() {
+            const config = getCurrentConfig();
             const tilesPerRow = Math.ceil(config.noise.tileSize / config.rendering.noisePixelSize);
             const totalTiles = tilesPerRow * tilesPerRow;
             const tilesToUpdate = Math.floor(totalTiles * config.noise.updateFraction);
@@ -287,6 +344,8 @@
 
         // Main rendering function
         function renderSpiralGradient(currentTime) {
+            const config = getCurrentConfig();
+
             // Calculate frame timing
             const deltaTime = (currentTime - lastFrameTime) / 1000;
             lastFrameTime = currentTime;
