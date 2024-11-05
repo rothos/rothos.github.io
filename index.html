@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>gar.lol</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Assistant&family=Libre+Baskerville&display=swap" rel="stylesheet">
     <style>
         * {
@@ -65,8 +68,9 @@
 
         /* Content below logo */
         .content {
-            margin-top: 2.4rem;
-            font-family: 'Libre Baskerville', serif;
+            margin-top: 2.8rem;
+            font-family: 'Pixelify Sans', serif;
+            font-size: 1.2rem;
             position: absolute;
             top: 50%; /* Center offset: changed from calc(50% + 60px) */
             left: 50%;
@@ -86,7 +90,6 @@
         }
 
         .nav-links li:not(:last-child)::after {
-/*            content: "·";*/
             margin-left: .5rem;
         }
 
@@ -96,11 +99,13 @@
             text-decoration: none;
             background-color: transparent;
             border-radius: 4px;
-            transition: background-color 0.1s ease;
+            transition: .3s ease;
         }
 
         .nav-links a:hover {
-            background-color: #edf6fb;
+            filter: drop-shadow(0px 0px 8px rgba(255, 255, 255, .8))
+                    drop-shadow(0px 0px 9px rgba(255, 255, 255, .9))
+                    drop-shadow(0px 0px 10px rgba(255, 255, 255, 1));
         }
 
         /* Social links styles */
@@ -111,12 +116,14 @@
         }
 
         .social-links a {
-            color: #444;
-            transition: color 0.3s ease;
+            color: #333;
+            transition: .3s ease;
         }
 
         .social-links a:hover {
-            color: #369;
+            filter: drop-shadow(0px 0px 8px rgba(255, 255, 255, .8))
+                    drop-shadow(0px 0px 9px rgba(255, 255, 255, .9))
+                    drop-shadow(0px 0px 10px rgba(255, 255, 255, 1));
         }
     </style>
 </head>
