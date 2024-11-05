@@ -19,6 +19,10 @@
             --nav-hover-bg: #edf6fb;
             --social-icon-color: #444;
             --social-hover-color: #369;
+            --logo-bg-color: #fff;
+            --logo-box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            --visibility-lightmode-only: visible;
+            --visibility-darkmode-only: none;
         }
 
         [data-theme="dark"] {
@@ -27,6 +31,10 @@
             --nav-hover-bg: #2a2a2a;
             --social-icon-color: #bbb;
             --social-hover-color: #69a;
+            --logo-bg-color: #111;
+            --logo-box-shadow: 0 0px 50px rgba(255, 255, 255, 0.7);
+            --visibility-lightmode-only: none;
+            --visibility-darkmode-only: visible;
         }
 
         body {
@@ -43,6 +51,14 @@
             position: relative;
             overflow: hidden;
             transition: color 0.3s ease, background-color 0.3s ease;
+        }
+
+        .lightmode-only {
+            display: var(--visibility-lightmode-only);
+        }
+
+        .darkmode-only {
+            display: var(--visibility-darkmode-only);
         }
 
         canvas {
@@ -96,12 +112,12 @@
             transform: translate(-50%, -50%);
             width: 120px;
             height: 120px;
-            background: white;
+            background: var(--logo-bg-color);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--logo-box-shadow);
         }
 
         .logo-container img {
@@ -177,7 +193,8 @@
     </button>
 
     <div class="logo-container">
-        <img src="moonface.png" class="logo" alt="Logo">
+        <img src="moonface.png" class="logo lightmode-only" alt="Logo">
+        <img src="moonface_inverted.png" class="logo darkmode-only" alt="Logo">
     </div>
 
     <div class="content">
