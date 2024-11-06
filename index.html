@@ -265,18 +265,20 @@ const fragmentShaderSource = `
         return rgb;
     }
 
-    float random(vec2 st) {
-        // A simple but effective random function for our needs
-        return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
+    float random(vec2 st, float time) {
+        // Include time in the random calculation
+        vec3 p3 = fract(vec3(st.xy, time) * vec3(12.9898,78.233,45.164));
+        p3 += dot(p3, p3.yzx + 19.19);
+        return fract((p3.x + p3.y) * p3.z);
     }
 
-    bool isNoisePixelBlack(vec2 coord) {
+    bool isNoisePixelBlack(vec2 coord, float time) {
         // First, get coordinates within a tile
         vec2 tileCoord = mod(coord, u_noiseTileSize);
         // Convert to noise pixel coordinates within the tile
         vec2 noiseCoord = floor(tileCoord / u_noisePixelSize);
-        // Generate random value for this noise pixel position
-        float rand = random(noiseCoord);
+        // Generate random value for this noise pixel position, including time
+        float rand = random(noiseCoord, time);
         // Return true (black) if random value is greater than 0.5
         return rand > 0.5;
     }
@@ -302,7 +304,7 @@ const fragmentShaderSource = `
         
         vec3 color = hsl2rgb(spiralValue, u_saturation, u_lightness);
 
-        bool isBlack = isNoisePixelBlack(gl_FragCoord.xy);
+        bool isBlack = isNoisePixelBlack(gl_FragCoord.xy, u_time);
         if (isBlack) {
             color = vec3(0.0);
         }
