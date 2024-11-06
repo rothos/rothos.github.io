@@ -265,15 +265,21 @@ const fragmentShaderSource = `
         return rgb;
     }
 
-    bool isCheckerboardBlack(vec2 coord) {
+    float random(vec2 st) {
+        // A simple but effective random function for our needs
+        return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
+    }
+
+    bool isNoisePixelBlack(vec2 coord) {
         // First, get coordinates within a tile
         vec2 tileCoord = mod(coord, u_noiseTileSize);
         // Convert to noise pixel coordinates within the tile
         vec2 noiseCoord = floor(tileCoord / u_noisePixelSize);
-        // Check if this noise pixel should be black
-        return mod(noiseCoord.x + noiseCoord.y, 2.0) < 1.0;
+        // Generate random value for this noise pixel position
+        float rand = random(noiseCoord);
+        // Return true (black) if random value is greater than 0.5
+        return rand > 0.5;
     }
-
 
     void main() {
         // Pixelate coordinates for spiral
@@ -296,7 +302,7 @@ const fragmentShaderSource = `
         
         vec3 color = hsl2rgb(spiralValue, u_saturation, u_lightness);
 
-        bool isBlack = isCheckerboardBlack(gl_FragCoord.xy);
+        bool isBlack = isNoisePixelBlack(gl_FragCoord.xy);
         if (isBlack) {
             color = vec3(0.0);
         }
