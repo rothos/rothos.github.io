@@ -239,6 +239,9 @@ const fragmentShaderSource = `
     uniform float u_lightness;
     uniform float u_noisePixelSize;
     uniform float u_noiseTileSize;
+    uniform float u_noiseSpread;   // Add this uniform
+    uniform float u_noiseIntensity; // Add this uniform
+
     
     float hue2rgb(float p, float q, float t) {
         if(t < 0.0) t += 1.0;
@@ -265,22 +268,31 @@ const fragmentShaderSource = `
         return rgb;
     }
 
+    // Utility function for uniform random numbers
     float random(vec2 st, float time) {
-        // Include time in the random calculation
         vec3 p3 = fract(vec3(st.xy, time) * vec3(12.9898,78.233,45.164));
         p3 += dot(p3, p3.yzx + 19.19);
         return fract((p3.x + p3.y) * p3.z);
     }
 
-    bool isNoisePixelBlack(vec2 coord, float time) {
-        // First, get coordinates within a tile
+    // Box-Muller transform to get gaussian distribution
+    float gaussianRandom(vec2 coord, float time) {
+        // Get two independent random values
+        float u1 = random(coord, time);
+        float u2 = random(coord + vec2(1.0), time);
+        
+        // Box-Muller transform
+        float r = sqrt(-2.0 * log(u1));
+        float theta = 2.0 * 3.14159 * u2;
+        
+        return r * cos(theta);
+    }
+
+    // Get noise value for a pixel
+    float getNoiseValue(vec2 coord, float time, float spread) {
         vec2 tileCoord = mod(coord, u_noiseTileSize);
-        // Convert to noise pixel coordinates within the tile
         vec2 noiseCoord = floor(tileCoord / u_noisePixelSize);
-        // Generate random value for this noise pixel position, including time
-        float rand = random(noiseCoord, time);
-        // Return true (black) if random value is greater than 0.5
-        return rand > 0.5;
+        return gaussianRandom(noiseCoord, time) * spread;
     }
 
     void main() {
@@ -304,10 +316,9 @@ const fragmentShaderSource = `
         
         vec3 color = hsl2rgb(spiralValue, u_saturation, u_lightness);
 
-        bool isBlack = isNoisePixelBlack(gl_FragCoord.xy, u_time);
-        if (isBlack) {
-            color = vec3(0.0);
-        }
+        float noiseValue = getNoiseValue(gl_FragCoord.xy, u_time, u_noiseSpread);
+        color = color + vec3(noiseValue * u_noiseIntensity/255.);
+        color = clamp(color, 0.0, 1.0);
 
         gl_FragColor = vec4(clamp(color, 0.0, 1.0), 1.0);
     }
@@ -456,8 +467,8 @@ function initWebGL() {
         'u_time', 'u_center', 'u_spiralTightness',
         'u_waveAmplitude', 'u_waveLength', 'u_waveSpeed', 'u_animSpeed',
         'u_spiralPixelSize', 'u_saturation', 'u_lightness',
-        'u_noisePixelSize', 'u_noiseTileSize'
-
+        'u_noisePixelSize', 'u_noiseTileSize',
+        'u_noiseSpread', 'u_noiseIntensity'
     ];
     
     program.uniformLocations = {};
@@ -520,6 +531,8 @@ function render(currentTime) {
     gl.uniform1f(program.uniformLocations['u_lightness'], config.color.lightness / 100);
     gl.uniform1f(program.uniformLocations['u_noisePixelSize'], config.rendering.noisePixelSize);
     gl.uniform1f(program.uniformLocations['u_noiseTileSize'], config.noise.tileSize);
+    gl.uniform1f(program.uniformLocations['u_noiseSpread'], config.noise.spread);
+    gl.uniform1f(program.uniformLocations['u_noiseIntensity'], config.noise.intensity);
 
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     
