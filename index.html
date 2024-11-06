@@ -237,6 +237,8 @@ const fragmentShaderSource = `
     uniform float u_spiralPixelSize;
     uniform float u_saturation;
     uniform float u_lightness;
+    uniform float u_noisePixelSize;
+    uniform float u_noiseTileSize;
     
     float hue2rgb(float p, float q, float t) {
         if(t < 0.0) t += 1.0;
@@ -262,7 +264,12 @@ const fragmentShaderSource = `
         
         return rgb;
     }
-    
+
+    bool isCheckerboardBlack(vec2 coord, float tileSize) {
+        vec2 normalizedCoord = floor(coord / tileSize);
+        return mod(normalizedCoord.x + normalizedCoord.y, 2.0) < 1.0;
+    }
+
     void main() {
         // Pixelate coordinates for spiral
         vec2 pixelCoord = floor(gl_FragCoord.xy / u_spiralPixelSize) * u_spiralPixelSize + u_spiralPixelSize/2.0;
@@ -283,6 +290,14 @@ const fragmentShaderSource = `
         spiralValue = mod(mod(spiralValue / (2.0 * 3.14159), 1.0) + 1.0, 1.0);
         
         vec3 color = hsl2rgb(spiralValue, u_saturation, u_lightness);
+
+        // After calculating color but before setting gl_FragColor:
+        vec2 noiseCoord = floor(gl_FragCoord.xy / u_noisePixelSize);
+        bool isBlack = isCheckerboardBlack(noiseCoord, u_noiseTileSize / u_noisePixelSize);
+        if (isBlack) {
+            color = vec3(0.0); // Make black
+        }
+
         gl_FragColor = vec4(clamp(color, 0.0, 1.0), 1.0);
     }
 `;
@@ -356,7 +371,9 @@ function initWebGL() {
     const uniforms = [
         'u_time', 'u_center', 'u_spiralTightness',
         'u_waveAmplitude', 'u_waveLength', 'u_waveSpeed', 'u_animSpeed',
-        'u_spiralPixelSize', 'u_saturation', 'u_lightness'
+        'u_spiralPixelSize', 'u_saturation', 'u_lightness',
+        'u_noisePixelSize', 'u_noiseTileSize'
+
     ];
     
     program.uniformLocations = {};
@@ -417,7 +434,9 @@ function render(currentTime) {
     gl.uniform1f(program.uniformLocations['u_spiralPixelSize'], config.rendering.spiralPixelSize);
     gl.uniform1f(program.uniformLocations['u_saturation'], config.color.saturation / 100);
     gl.uniform1f(program.uniformLocations['u_lightness'], config.color.lightness / 100);
-    
+    gl.uniform1f(program.uniformLocations['u_noisePixelSize'], config.rendering.noisePixelSize);
+    gl.uniform1f(program.uniformLocations['u_noiseTileSize'], config.noise.tileSize);
+
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     
     time += timeIncrement;
