@@ -189,8 +189,7 @@ const defaultConfig = {
         noisePixelSize: 1
     },
     noise: {
-        intensity: 0.066,
-        spread: 40,
+        intensity: 2.64,
         updateFraction: 0.3,
         tileSize: 200
     },
@@ -242,7 +241,6 @@ const fragmentShaderSource = `
     uniform float u_lightness;
     uniform float u_noisePixelSize;
     uniform float u_noiseTileSize;
-    uniform float u_noiseSpread;
     uniform float u_noiseIntensity;
     uniform float u_noiseUpdateFraction;
     uniform float u_noiseFPS;
@@ -315,7 +313,7 @@ const fragmentShaderSource = `
         float updateGroup = floor(pixelRandom / u_noiseUpdateFraction);
         float lastUpdateFrame = frameTime - mod(frameTime - updateGroup, 1.0/u_noiseUpdateFraction);
         
-        return gaussianRandom(tileCoord, lastUpdateFrame) * u_noiseSpread * u_noiseIntensity/255.;
+        return gaussianRandom(tileCoord, lastUpdateFrame) * u_noiseIntensity/255.;
     }
 
     void main() {
@@ -398,8 +396,7 @@ function initWebGL() {
         'u_waveAmplitude', 'u_waveLength', 'u_waveSpeed', 'u_animSpeed',
         'u_spiralPixelSize', 'u_saturation', 'u_lightness',
         'u_noisePixelSize', 'u_noiseTileSize',
-        'u_noiseSpread', 'u_noiseIntensity', 'u_noiseUpdateFraction',
-        'u_noiseFPS'
+        'u_noiseIntensity', 'u_noiseUpdateFraction', 'u_noiseFPS'
     ];
     
     program.uniformLocations = {};
@@ -458,7 +455,6 @@ function render(currentTime) {
     gl.uniform1f(program.uniformLocations['u_lightness'], config.color.lightness / 100);
     gl.uniform1f(program.uniformLocations['u_noisePixelSize'], config.rendering.noisePixelSize);
     gl.uniform1f(program.uniformLocations['u_noiseTileSize'], config.noise.tileSize);
-    gl.uniform1f(program.uniformLocations['u_noiseSpread'], config.noise.spread);
     gl.uniform1f(program.uniformLocations['u_noiseIntensity'], config.noise.intensity);
     gl.uniform1f(program.uniformLocations['u_noiseUpdateFraction'], config.noise.updateFraction);
     gl.uniform1f(program.uniformLocations['u_noiseFPS'], config.animation.noiseFPS);
