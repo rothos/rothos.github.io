@@ -265,10 +265,15 @@ const fragmentShaderSource = `
         return rgb;
     }
 
-    bool isCheckerboardBlack(vec2 coord, float tileSize) {
-        vec2 normalizedCoord = floor(coord / tileSize);
-        return mod(normalizedCoord.x + normalizedCoord.y, 2.0) < 1.0;
+    bool isCheckerboardBlack(vec2 coord) {
+        // First, get coordinates within a tile
+        vec2 tileCoord = mod(coord, u_noiseTileSize);
+        // Convert to noise pixel coordinates within the tile
+        vec2 noiseCoord = floor(tileCoord / u_noisePixelSize);
+        // Check if this noise pixel should be black
+        return mod(noiseCoord.x + noiseCoord.y, 2.0) < 1.0;
     }
+
 
     void main() {
         // Pixelate coordinates for spiral
@@ -291,11 +296,9 @@ const fragmentShaderSource = `
         
         vec3 color = hsl2rgb(spiralValue, u_saturation, u_lightness);
 
-        // After calculating color but before setting gl_FragColor:
-        vec2 noiseCoord = floor(gl_FragCoord.xy / u_noisePixelSize);
-        bool isBlack = isCheckerboardBlack(noiseCoord, u_noiseTileSize / u_noisePixelSize);
+        bool isBlack = isCheckerboardBlack(gl_FragCoord.xy);
         if (isBlack) {
-            color = vec3(0.0); // Make black
+            color = vec3(0.0);
         }
 
         gl_FragColor = vec4(clamp(color, 0.0, 1.0), 1.0);
@@ -307,6 +310,79 @@ let gl;
 let program;
 let time = 0;
 let lastFrameTime = 0;
+
+// Create and setup noise texture
+let noiseTexture;
+let noiseData;
+
+function initNoiseTexture() {
+    const config = getCurrentConfig();
+    const tileSize = Math.ceil(config.noise.tileSize / config.rendering.noisePixelSize);
+    
+    // Create noise data array (one value per noise pixel)
+    noiseData = new Uint8Array(tileSize * tileSize * 4);
+    
+    // Initialize all pixels
+    for(let i = 0; i < noiseData.length; i += 4) {
+        const value = Math.random() < 0.5 ? 0 : 255;
+        noiseData[i] = value;     // R
+        noiseData[i+1] = value;   // G
+        noiseData[i+2] = value;   // B
+        noiseData[i+3] = 255;     // A
+    }
+    
+    // Create and bind texture
+    noiseTexture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, noiseTexture);
+    
+    // Set texture parameters
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    
+    // Upload initial data
+    gl.texImage2D(
+        gl.TEXTURE_2D,
+        0,
+        gl.RGBA,
+        tileSize,
+        tileSize,
+        0,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        noiseData
+    );
+}
+
+function updateNoiseTexture() {
+    const config = getCurrentConfig();
+    const tileSize = Math.ceil(config.noise.tileSize / config.rendering.noisePixelSize);
+    const totalPixels = tileSize * tileSize;
+    const pixelsToUpdate = Math.floor(totalPixels * config.noise.updateFraction);
+    
+    for(let i = 0; i < pixelsToUpdate; i++) {
+        const idx = Math.floor(Math.random() * totalPixels) * 4;
+        const value = Math.random() < 0.5 ? 0 : 255;
+        noiseData[idx] = value;
+        noiseData[idx+1] = value;
+        noiseData[idx+2] = value;
+        noiseData[idx+3] = 255;
+    }
+    
+    gl.bindTexture(gl.TEXTURE_2D, noiseTexture);
+    gl.texImage2D(
+        gl.TEXTURE_2D,
+        0,
+        gl.RGBA,
+        tileSize,
+        tileSize,
+        0,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        noiseData
+    );
+}
 
 function getCurrentConfig() {
     return window.innerWidth <= 768 ? mobileConfig : defaultConfig;
