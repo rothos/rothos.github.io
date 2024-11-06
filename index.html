@@ -273,7 +273,7 @@ const fragmentShaderSource = `
         vec2 pos = pixelCoord - u_center;
         
         float distance = length(pos);
-        float angle = atan(pos.y, pos.x);
+        float angle = -atan(pos.y, pos.x);
         
         // Calculate spiral value
         float safeDistance = max(distance, 0.1);
