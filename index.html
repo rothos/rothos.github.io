@@ -367,6 +367,7 @@
     let program;
     let time = 0;
     let lastFrameTime = 0;
+    let animationFrameId = null;
 
     function getCurrentConfig() {
         return window.innerWidth <= 768 ? mobileConfig : defaultConfig;
@@ -475,25 +476,32 @@
         
         time += config.animation.speed;
 
-        requestAnimationFrame(render);
+        // requestAnimationFrame(render);
+        animationFrameId = requestAnimationFrame(render);
     }
 
-    // Initialize and start animation
+    // Update the resize event handler
     window.addEventListener('resize', () => {
+        if (animationFrameId !== null) {
+            cancelAnimationFrame(animationFrameId);
+        }
         resizeCanvas();
-        // Force immediate render after resize to prevent flicker
-        render(performance.now());
+        animationFrameId = requestAnimationFrame(render);
     });
 
+    // Force immediate render after scroll to update logo position
     window.addEventListener('scroll', () => {
-        // Force immediate render after scroll to update logo position
-        render(performance.now());
+        if (animationFrameId !== null) {
+            cancelAnimationFrame(animationFrameId);
+        }
+        animationFrameId = requestAnimationFrame(render);
     });
 
+    // Update the load event handler
     window.addEventListener('load', () => {
         initWebGL();
         resizeCanvas();
-        requestAnimationFrame(render);
+        animationFrameId = requestAnimationFrame(render);
     });
     </script>
 
