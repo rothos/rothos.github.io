@@ -228,7 +228,6 @@ const fragmentShaderSource = `
     varying vec2 v_texCoord;
     
     uniform float u_time;
-    uniform vec2 u_resolution;
     uniform vec2 u_center;
     uniform float u_spiralTightness;
     uniform float u_waveAmplitude;
@@ -236,12 +235,9 @@ const fragmentShaderSource = `
     uniform float u_waveSpeed;
     uniform float u_animSpeed;
     uniform float u_spiralPixelSize;
-    uniform sampler2D u_noiseTex;
-    uniform float u_noiseIntensity;
     uniform float u_saturation;
     uniform float u_lightness;
     
-    // Fixed return types in hue2rgb function
     float hue2rgb(float p, float q, float t) {
         if(t < 0.0) t += 1.0;
         if(t > 1.0) t -= 1.0;
@@ -283,17 +279,10 @@ const fragmentShaderSource = `
                 u_waveAmplitude * sin(distance/u_waveLength - u_time*u_waveSpeed)
             ) + 
             u_time * u_animSpeed;
-            
+        
         spiralValue = mod(mod(spiralValue / (2.0 * 3.14159), 1.0) + 1.0, 1.0);
         
-        // Convert to RGB using improved conversion
         vec3 color = hsl2rgb(spiralValue, u_saturation, u_lightness);
-        
-        // Apply noise with corrected coordinates and scaling
-        vec2 noiseCoord = pixelCoord / u_resolution;
-        vec4 noise = texture2D(u_noiseTex, noiseCoord);
-        color += vec3(noise.r - 0.5) * 2.0 * u_noiseIntensity;
-        
         gl_FragColor = vec4(clamp(color, 0.0, 1.0), 1.0);
     }
 `;
@@ -303,63 +292,6 @@ let gl;
 let program;
 let time = 0;
 let lastFrameTime = 0;
-let noiseTexture;
-let noiseArray;
-
-function generateGaussianNoise(spread) {
-    const u = 1 - Math.random();
-    const v = 1 - Math.random();
-    return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v) * spread;
-}
-
-function initializeNoiseTexture() {
-    const config = getCurrentConfig();
-    const tilesPerRow = Math.ceil(config.noise.tileSize / config.rendering.noisePixelSize);
-    noiseArray = new Array(tilesPerRow * tilesPerRow)
-        .fill(0)
-        .map(() => generateGaussianNoise(config.noise.spread));
-        
-    const noiseData = new Uint8Array(tilesPerRow * tilesPerRow * 4);
-    for (let i = 0; i < noiseArray.length; i++) {
-        const value = Math.floor((noiseArray[i] / config.noise.spread + 1) * 127.5);
-        noiseData[i * 4] = value;
-        noiseData[i * 4 + 1] = value;
-        noiseData[i * 4 + 2] = value;
-        noiseData[i * 4 + 3] = 255;
-    }
-    
-    noiseTexture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, noiseTexture);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, tilesPerRow, tilesPerRow, 0, gl.RGBA, gl.UNSIGNED_BYTE, noiseData);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-}
-
-function updateNoiseTexture() {
-    const config = getCurrentConfig();
-    const tilesPerRow = Math.ceil(config.noise.tileSize / config.rendering.noisePixelSize);
-    const totalTiles = tilesPerRow * tilesPerRow;
-    const tilesToUpdate = Math.floor(totalTiles * config.noise.updateFraction);
-    
-    for (let i = 0; i < tilesToUpdate; i++) {
-        const randomIndex = Math.floor(Math.random() * totalTiles);
-        noiseArray[randomIndex] = generateGaussianNoise(config.noise.spread);
-    }
-    
-    const noiseData = new Uint8Array(tilesPerRow * tilesPerRow * 4);
-    for (let i = 0; i < noiseArray.length; i++) {
-        const value = Math.floor((noiseArray[i] / config.noise.spread + 1) * 127.5);
-        noiseData[i * 4] = value;
-        noiseData[i * 4 + 1] = value;
-        noiseData[i * 4 + 2] = value;
-        noiseData[i * 4 + 3] = 255;
-    }
-    
-    gl.bindTexture(gl.TEXTURE_2D, noiseTexture);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, tilesPerRow, tilesPerRow, 0, gl.RGBA, gl.UNSIGNED_BYTE, noiseData);
-}
 
 function getCurrentConfig() {
     return window.innerWidth <= 768 ? mobileConfig : defaultConfig;
@@ -373,35 +305,29 @@ function initWebGL() {
         return;
     }
     
-    // Create and compile vertex shader
     const vertexShader = gl.createShader(gl.VERTEX_SHADER);
     gl.shaderSource(vertexShader, vertexShaderSource);
     gl.compileShader(vertexShader);
     
-    // Check vertex shader compilation
     if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
         console.error('Vertex shader compilation failed:', gl.getShaderInfoLog(vertexShader));
         return;
     }
     
-    // Create and compile fragment shader
     const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
     gl.shaderSource(fragmentShader, fragmentShaderSource);
     gl.compileShader(fragmentShader);
     
-    // Check fragment shader compilation
     if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
         console.error('Fragment shader compilation failed:', gl.getShaderInfoLog(fragmentShader));
         return;
     }
     
-    // Create program
     program = gl.createProgram();
     gl.attachShader(program, vertexShader);
     gl.attachShader(program, fragmentShader);
     gl.linkProgram(program);
-    
-    // Check program linking
+
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
         console.error('Program linking failed:', gl.getProgramInfoLog(program));
         return;
@@ -409,7 +335,6 @@ function initWebGL() {
     
     gl.useProgram(program);
     
-    // Create vertex buffer
     const vertices = new Float32Array([
         -1, -1,
         1, -1,
@@ -420,7 +345,6 @@ function initWebGL() {
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
     
-    // Set up attributes
     const positionLocation = gl.getAttribLocation(program, 'a_position');
     if (positionLocation === -1) {
         console.error('Failed to get position attribute location');
@@ -429,15 +353,12 @@ function initWebGL() {
     gl.enableVertexAttribArray(positionLocation);
     gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
     
-    // Initialize all uniform locations
     const uniforms = [
-        'u_time', 'u_resolution', 'u_center', 'u_spiralTightness',
+        'u_time', 'u_center', 'u_spiralTightness',
         'u_waveAmplitude', 'u_waveLength', 'u_waveSpeed', 'u_animSpeed',
-        'u_spiralPixelSize', 'u_noiseTex', 'u_noiseIntensity',
-        'u_saturation', 'u_lightness'
+        'u_spiralPixelSize', 'u_saturation', 'u_lightness'
     ];
     
-    // Store uniform locations
     program.uniformLocations = {};
     for (const uniform of uniforms) {
         const location = gl.getUniformLocation(program, uniform);
@@ -447,8 +368,6 @@ function initWebGL() {
         }
         program.uniformLocations[uniform] = location;
     }
-    
-    initializeNoiseTexture();
 }
 
 function resizeCanvas() {
@@ -476,7 +395,6 @@ function render(currentTime) {
     
     const timeIncrement = config.animation.timeScale * (deltaTime * config.animation.targetFPS);
     
-    // Get logo position relative to canvas
     const logoElement = document.querySelector('.logo-container');
     const logoRect = logoElement.getBoundingClientRect();
     const canvas = document.getElementById('bgCanvas');
@@ -488,14 +406,8 @@ function render(currentTime) {
     // Make sure we're using our program
     gl.useProgram(program);
     
-    // Set up noise texture
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, noiseTexture);
-    gl.uniform1i(program.uniformLocations['u_noiseTex'], 0);
-    
     // Update uniforms using stored locations
     gl.uniform1f(program.uniformLocations['u_time'], time);
-    gl.uniform2f(program.uniformLocations['u_resolution'], canvas.width, canvas.height);
     gl.uniform2f(program.uniformLocations['u_center'], centerX, window.innerHeight - centerY);
     gl.uniform1f(program.uniformLocations['u_spiralTightness'], config.spiral.tightness);
     gl.uniform1f(program.uniformLocations['u_waveAmplitude'], config.spiral.radialWave.amplitude);
@@ -503,14 +415,12 @@ function render(currentTime) {
     gl.uniform1f(program.uniformLocations['u_waveSpeed'], config.spiral.radialWave.speed);
     gl.uniform1f(program.uniformLocations['u_animSpeed'], config.animation.speed);
     gl.uniform1f(program.uniformLocations['u_spiralPixelSize'], config.rendering.spiralPixelSize);
-    gl.uniform1f(program.uniformLocations['u_noiseIntensity'], config.noise.intensity);
     gl.uniform1f(program.uniformLocations['u_saturation'], config.color.saturation / 100);
     gl.uniform1f(program.uniformLocations['u_lightness'], config.color.lightness / 100);
     
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     
     time += timeIncrement;
-    updateNoiseTexture();
     requestAnimationFrame(render);
 }
 
