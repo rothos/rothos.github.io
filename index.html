@@ -184,6 +184,9 @@
         },
         spiral: {
             tightness: 180,
+            spinSpeed: -0.08,
+            wobbleFreq: 0.28,
+            wobbleAmplitude: 6.0,
             radialWave: {
                 amplitude: 0.1,
                 length: 13.5,
@@ -237,13 +240,16 @@
         float PI = 3.14159265358979;
 
         uniform float u_time;
+        uniform float u_animSpeed;
         uniform vec2 u_center;
         uniform float u_spiralTightness;
+        uniform float u_spiralPixelSize;
+        uniform float u_spiralSpinSpeed;
+        uniform float u_spiralWobbleFreq;
+        uniform float u_spiralWobbleAmplitude;
         uniform float u_waveAmplitude;
         uniform float u_waveLength;
         uniform float u_waveSpeed;
-        uniform float u_animSpeed;
-        uniform float u_spiralPixelSize;
         uniform float u_saturation;
         uniform float u_lightness;
         uniform float u_noisePixelSize;
@@ -335,10 +341,11 @@
             float safeDistance = max(distance, 0.1);
             float spiralValue = angle + 
                 (distance/u_spiralTightness) * (
-                    0.5 + sin(4.0 - 8.0*u_time*u_animSpeed)/sqrt(safeDistance)*6.0 +
+                    // This line determines the "spin wobble" -- 0.5 is the wobble phase shift
+                    0.5 + u_spiralWobbleAmplitude * sin(4.0 - u_spiralWobbleFreq * u_time) / sqrt(safeDistance) +
                     u_waveAmplitude * sin(distance/u_waveLength - u_time*u_waveSpeed)
                 ) + 
-                u_time * u_animSpeed * (-8.0/3.0);
+                u_time * u_spiralSpinSpeed;
             
             spiralValue = mod(mod(spiralValue / (2.0 * PI), 1.0) + 1.0, 1.0);
             
@@ -400,6 +407,7 @@
         
         const uniforms = [
             'u_time', 'u_center', 'u_spiralTightness',
+            'u_spiralSpinSpeed', 'u_spiralWobbleFreq', 'u_spiralWobbleAmplitude',
             'u_waveAmplitude', 'u_waveLength', 'u_waveSpeed', 'u_animSpeed',
             'u_spiralPixelSize', 'u_saturation', 'u_lightness',
             'u_noisePixelSize', 'u_noiseTileSize',
@@ -453,6 +461,9 @@
         gl.uniform1f(program.uniformLocations['u_time'], time);
         gl.uniform2f(program.uniformLocations['u_center'], centerX, window.innerHeight - centerY);
         gl.uniform1f(program.uniformLocations['u_spiralTightness'], config.spiral.tightness);
+        gl.uniform1f(program.uniformLocations['u_spiralSpinSpeed'], config.spiral.spinSpeed);
+        gl.uniform1f(program.uniformLocations['u_spiralWobbleFreq'], config.spiral.wobbleFreq);
+        gl.uniform1f(program.uniformLocations['u_spiralWobbleAmplitude'], config.spiral.wobbleAmplitude);
         gl.uniform1f(program.uniformLocations['u_waveAmplitude'], config.spiral.radialWave.amplitude);
         gl.uniform1f(program.uniformLocations['u_waveLength'], config.spiral.radialWave.length);
         gl.uniform1f(program.uniformLocations['u_waveSpeed'], config.spiral.radialWave.speed);
