@@ -172,7 +172,7 @@
 const defaultConfig = {
     animation: {
         speed: 0.03,
-        targetFPS: 60
+        animationFPS: 60
     },
     spiral: {
         tightness: 180,
@@ -428,7 +428,7 @@ function render(currentTime) {
         return;
     }
 
-    const timeIncrement = config.animation.speed * (deltaTime * config.animation.targetFPS);
+    const timeIncrement = config.animation.speed * (deltaTime * config.animation.animationFPS);
     
     const logoElement = document.querySelector('.logo-container');
     const logoRect = logoElement.getBoundingClientRect();
