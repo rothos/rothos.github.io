@@ -172,7 +172,8 @@
 const defaultConfig = {
     animation: {
         speed: -0.08,
-        targetFPS: 2,//60,
+        targetFPS: 60,
+        noiseFPS: 15,
         timeScale: 0.03
     },
     spiral: {
@@ -185,7 +186,7 @@ const defaultConfig = {
     },
     rendering: {
         spiralPixelSize: 4,
-        noisePixelSize: 10//1
+        noisePixelSize: 1
     },
     noise: {
         intensity: 0.066,
@@ -244,6 +245,7 @@ const fragmentShaderSource = `
     uniform float u_noiseSpread;
     uniform float u_noiseIntensity;
     uniform float u_noiseUpdateFraction;
+    uniform float u_noiseFPS;
     
     float hue2rgb(float p, float q, float t) {
         if(t < 0.0) t += 1.0;
@@ -287,7 +289,9 @@ const fragmentShaderSource = `
         float r = sqrt(-2.0 * log(u1));
         float theta = 2.0 * PI * u2;
         
-        return r * cos(theta);
+        // The clamp is necessary to prevent the tails of the Gaussian
+        // causing some pixels to be painted white or black.
+        return clamp(r * cos(theta), -3.0, 3.0);
     }
 
     float getNoiseValue(vec2 coord, float time) {
@@ -301,7 +305,7 @@ const fragmentShaderSource = `
         vec2 tileCoord = mod(noiseCoord, cellsPerTile);
         
         // Quantize time to frames
-        float frameTime = floor(time * 60.0);
+        float frameTime = floor(time * u_noiseFPS);
         
         // Generate a consistent random value for this pixel
         float pixelRandom = random(tileCoord, 0.0);
@@ -394,7 +398,8 @@ function initWebGL() {
         'u_waveAmplitude', 'u_waveLength', 'u_waveSpeed', 'u_animSpeed',
         'u_spiralPixelSize', 'u_saturation', 'u_lightness',
         'u_noisePixelSize', 'u_noiseTileSize',
-        'u_noiseSpread', 'u_noiseIntensity', 'u_noiseUpdateFraction'
+        'u_noiseSpread', 'u_noiseIntensity', 'u_noiseUpdateFraction',
+        'u_noiseFPS'
     ];
     
     program.uniformLocations = {};
@@ -456,7 +461,7 @@ function render(currentTime) {
     gl.uniform1f(program.uniformLocations['u_noiseSpread'], config.noise.spread);
     gl.uniform1f(program.uniformLocations['u_noiseIntensity'], config.noise.intensity);
     gl.uniform1f(program.uniformLocations['u_noiseUpdateFraction'], config.noise.updateFraction);
-
+    gl.uniform1f(program.uniformLocations['u_noiseFPS'], config.animation.noiseFPS);
 
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     
