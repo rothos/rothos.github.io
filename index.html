@@ -243,7 +243,7 @@ const fragmentShaderSource = `
     uniform float u_noiseTileSize;
     uniform float u_noiseSpread;
     uniform float u_noiseIntensity;
-    uniform float u_updateFraction;
+    uniform float u_noiseUpdateFraction;
     
     float hue2rgb(float p, float q, float t) {
         if(t < 0.0) t += 1.0;
@@ -290,29 +290,29 @@ const fragmentShaderSource = `
         return r * cos(theta);
     }
 
-float getNoiseValue(vec2 coord, float time) {
-    // Calculate which noise cell we're in
-    vec2 noiseCoord = floor(coord / u_noisePixelSize);
-    
-    // Calculate how many noise cells per tile
-    float cellsPerTile = u_noiseTileSize;
-    
-    // Get coordinates within a tile (in noise cell units)
-    vec2 tileCoord = mod(noiseCoord, cellsPerTile);
-    
-    // Quantize time to frames
-    float frameTime = floor(time * 60.0);
-    
-    // Generate a consistent random value for this pixel
-    float pixelRandom = random(tileCoord, 0.0);
-    
-    // Calculate when this pixel should last have updated
-    // This creates bands of pixels that update at different times
-    float updateGroup = floor(pixelRandom / u_updateFraction);
-    float lastUpdateFrame = frameTime - mod(frameTime - updateGroup, 1.0/u_updateFraction);
-    
-    return gaussianRandom(tileCoord, lastUpdateFrame) * u_noiseSpread * u_noiseIntensity/255.;
-}
+    float getNoiseValue(vec2 coord, float time) {
+        // Calculate which noise cell we're in
+        vec2 noiseCoord = floor(coord / u_noisePixelSize);
+        
+        // Calculate how many noise cells per tile
+        float cellsPerTile = u_noiseTileSize;
+        
+        // Get coordinates within a tile (in noise cell units)
+        vec2 tileCoord = mod(noiseCoord, cellsPerTile);
+        
+        // Quantize time to frames
+        float frameTime = floor(time * 60.0);
+        
+        // Generate a consistent random value for this pixel
+        float pixelRandom = random(tileCoord, 0.0);
+        
+        // Calculate when this pixel should last have updated
+        // This creates bands of pixels that update at different times
+        float updateGroup = floor(pixelRandom / u_noiseUpdateFraction);
+        float lastUpdateFrame = frameTime - mod(frameTime - updateGroup, 1.0/u_noiseUpdateFraction);
+        
+        return gaussianRandom(tileCoord, lastUpdateFrame) * u_noiseSpread * u_noiseIntensity/255.;
+    }
 
     void main() {
         // Pixelate coordinates for spiral
@@ -349,79 +349,6 @@ let program;
 let time = 0;
 let lastFrameTime = 0;
 
-// Create and setup noise texture
-let noiseTexture;
-let noiseData;
-
-function initNoiseTexture() {
-    const config = getCurrentConfig();
-    const tileSize = Math.ceil(config.noise.tileSize / config.rendering.noisePixelSize);
-    
-    // Create noise data array (one value per noise pixel)
-    noiseData = new Uint8Array(tileSize * tileSize * 4);
-    
-    // Initialize all pixels
-    for(let i = 0; i < noiseData.length; i += 4) {
-        const value = Math.random() < 0.5 ? 0 : 255;
-        noiseData[i] = value;     // R
-        noiseData[i+1] = value;   // G
-        noiseData[i+2] = value;   // B
-        noiseData[i+3] = 255;     // A
-    }
-    
-    // Create and bind texture
-    noiseTexture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, noiseTexture);
-    
-    // Set texture parameters
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    
-    // Upload initial data
-    gl.texImage2D(
-        gl.TEXTURE_2D,
-        0,
-        gl.RGBA,
-        tileSize,
-        tileSize,
-        0,
-        gl.RGBA,
-        gl.UNSIGNED_BYTE,
-        noiseData
-    );
-}
-
-function updateNoiseTexture() {
-    const config = getCurrentConfig();
-    const tileSize = Math.ceil(config.noise.tileSize / config.rendering.noisePixelSize);
-    const totalPixels = tileSize * tileSize;
-    const pixelsToUpdate = Math.floor(totalPixels * config.noise.updateFraction);
-    
-    for(let i = 0; i < pixelsToUpdate; i++) {
-        const idx = Math.floor(Math.random() * totalPixels) * 4;
-        const value = Math.random() < 0.5 ? 0 : 255;
-        noiseData[idx] = value;
-        noiseData[idx+1] = value;
-        noiseData[idx+2] = value;
-        noiseData[idx+3] = 255;
-    }
-    
-    gl.bindTexture(gl.TEXTURE_2D, noiseTexture);
-    gl.texImage2D(
-        gl.TEXTURE_2D,
-        0,
-        gl.RGBA,
-        tileSize,
-        tileSize,
-        0,
-        gl.RGBA,
-        gl.UNSIGNED_BYTE,
-        noiseData
-    );
-}
-
 function getCurrentConfig() {
     return window.innerWidth <= 768 ? mobileConfig : defaultConfig;
 }
@@ -438,30 +365,14 @@ function initWebGL() {
     gl.shaderSource(vertexShader, vertexShaderSource);
     gl.compileShader(vertexShader);
     
-    if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
-        console.error('Vertex shader compilation failed:', gl.getShaderInfoLog(vertexShader));
-        return;
-    }
-    
     const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
     gl.shaderSource(fragmentShader, fragmentShaderSource);
     gl.compileShader(fragmentShader);
-    
-    if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
-        console.error('Fragment shader compilation failed:', gl.getShaderInfoLog(fragmentShader));
-        return;
-    }
     
     program = gl.createProgram();
     gl.attachShader(program, vertexShader);
     gl.attachShader(program, fragmentShader);
     gl.linkProgram(program);
-
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-        console.error('Program linking failed:', gl.getProgramInfoLog(program));
-        return;
-    }
-    
     gl.useProgram(program);
     
     const vertices = new Float32Array([
@@ -475,10 +386,6 @@ function initWebGL() {
     gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
     
     const positionLocation = gl.getAttribLocation(program, 'a_position');
-    if (positionLocation === -1) {
-        console.error('Failed to get position attribute location');
-        return;
-    }
     gl.enableVertexAttribArray(positionLocation);
     gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
     
@@ -487,16 +394,12 @@ function initWebGL() {
         'u_waveAmplitude', 'u_waveLength', 'u_waveSpeed', 'u_animSpeed',
         'u_spiralPixelSize', 'u_saturation', 'u_lightness',
         'u_noisePixelSize', 'u_noiseTileSize',
-        'u_noiseSpread', 'u_noiseIntensity', 'u_updateFraction'
+        'u_noiseSpread', 'u_noiseIntensity', 'u_noiseUpdateFraction'
     ];
     
     program.uniformLocations = {};
     for (const uniform of uniforms) {
         const location = gl.getUniformLocation(program, uniform);
-        if (location === null) {
-            console.error(`Failed to get uniform location for ${uniform}`);
-            return;
-        }
         program.uniformLocations[uniform] = location;
     }
 }
@@ -552,7 +455,7 @@ function render(currentTime) {
     gl.uniform1f(program.uniformLocations['u_noiseTileSize'], config.noise.tileSize);
     gl.uniform1f(program.uniformLocations['u_noiseSpread'], config.noise.spread);
     gl.uniform1f(program.uniformLocations['u_noiseIntensity'], config.noise.intensity);
-    gl.uniform1f(program.uniformLocations['u_updateFraction'], config.noise.updateFraction);
+    gl.uniform1f(program.uniformLocations['u_noiseUpdateFraction'], config.noise.updateFraction);
 
 
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
