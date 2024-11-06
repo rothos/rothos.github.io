@@ -185,12 +185,12 @@ const defaultConfig = {
     },
     rendering: {
         spiralPixelSize: 4,
-        noisePixelSize: 1//1
+        noisePixelSize: 10//1
     },
     noise: {
         intensity: 0.066,
         spread: 40,
-        updateFraction: 0.01,//0.3,
+        updateFraction: 0.3,
         tileSize: 200
     },
     color: {
@@ -290,27 +290,29 @@ const fragmentShaderSource = `
         return r * cos(theta);
     }
 
-    float getNoiseValue(vec2 coord, float time) {
-        // Calculate which noise cell we're in
-        vec2 noiseCoord = floor(coord / u_noisePixelSize);
-        
-        // Calculate how many noise cells per tile
-        float cellsPerTile = u_noiseTileSize;
-        
-        // Get coordinates within a tile (in noise cell units)
-        vec2 tileCoord = mod(noiseCoord, cellsPerTile);
-        
-        // Quantize time to frames
-        float frameTime = floor(time * 60.0);
-        
-        // Use frameTime to determine which pixels update this frame
-        float updateSeed = random(tileCoord + vec2(frameTime, 0.0), 0.0);
-        
-        // Calculate noise time based on when this pixel last updated
-        float noiseTime = floor(frameTime - mod(updateSeed/u_updateFraction, 1.0/u_updateFraction) * frameTime);
-        
-        return gaussianRandom(tileCoord, noiseTime) * u_noiseSpread * u_noiseIntensity/255.;
-    }
+float getNoiseValue(vec2 coord, float time) {
+    // Calculate which noise cell we're in
+    vec2 noiseCoord = floor(coord / u_noisePixelSize);
+    
+    // Calculate how many noise cells per tile
+    float cellsPerTile = u_noiseTileSize;
+    
+    // Get coordinates within a tile (in noise cell units)
+    vec2 tileCoord = mod(noiseCoord, cellsPerTile);
+    
+    // Quantize time to frames
+    float frameTime = floor(time * 60.0);
+    
+    // Generate a consistent random value for this pixel
+    float pixelRandom = random(tileCoord, 0.0);
+    
+    // Calculate when this pixel should last have updated
+    // This creates bands of pixels that update at different times
+    float updateGroup = floor(pixelRandom / u_updateFraction);
+    float lastUpdateFrame = frameTime - mod(frameTime - updateGroup, 1.0/u_updateFraction);
+    
+    return gaussianRandom(tileCoord, lastUpdateFrame) * u_noiseSpread * u_noiseIntensity/255.;
+}
 
     void main() {
         // Pixelate coordinates for spiral
