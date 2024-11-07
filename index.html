@@ -194,7 +194,7 @@
             }
         },
         rendering: {
-            spiralPixelSize: 4,
+            spiralPixelSize: 1,
             noisePixelSize: 1
         },
         noise: {
@@ -353,6 +353,33 @@
             spiralValue = mod(mod(spiralValue / (2.0 * PI), 1.0) + 1.0, 1.0);
             
             vec3 color = hsl2rgb(spiralValue, u_saturation, u_lightness);
+
+
+
+
+
+            // Calculate the hue of the color
+            float hue = atan(sqrt(3.0) * (color.g - color.b), 2.0 * color.r - color.g - color.b) / (2.0 * PI);
+            
+            // Determine if the color is mostly pure red or green
+            float isRed = step(.935, color.r);
+            float isGreen = step(.935, color.g);
+            float isBlue = step(.935, color.b);
+            
+            // Apply the filter
+            color = mix(
+                // Darker/black color for non-pure red/green
+                vec3(mix(0.1, 0.0, isRed * isGreen)),
+                // Brighter white color for pure red/green
+                vec3(1.0),
+                isRed * isGreen
+            );
+
+
+
+
+
+
 
             float noiseValue = getNoiseValue(gl_FragCoord.xy, quantizedTime);
             color = color + vec3(noiseValue);
