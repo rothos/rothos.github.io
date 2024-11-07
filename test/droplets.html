@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Water Droplet Animation</title>
+  <style>
+    body {
+      background-color: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    canvas {
+      border: 1px solid white;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="myCanvas" width="400" height="400"></canvas>
+
+  <script>
+    const canvas = document.getElementById('myCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Configurable parameters
+    const initialRadius = 0;
+    const maxRadius = 50;
+    const numRings = 8;
+    const ringSizeStart = 15;
+    const ringSizeEnd = 0;
+    const animationDuration = 2000; // in milliseconds
+
+    let currentTime = 0;
+    let animationStartTime = null;
+
+    function drawAnimation(timestamp) {
+      if (!animationStartTime) {
+        animationStartTime = timestamp;
+      }
+
+      currentTime = timestamp - animationStartTime;
+
+      // Clear the canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw the growing/shrinking circle
+      const currentRadius = easeInOutQuad(currentTime, initialRadius, maxRadius - initialRadius, animationDuration);
+      ctx.beginPath();
+      ctx.arc(canvas.width / 2, canvas.height / 2, currentRadius, 0, 2 * Math.PI);
+      ctx.fillStyle = 'white';
+      ctx.fill();
+
+      // Draw the shrinking rings
+      for (let i = 0; i < numRings; i++) {
+        const ringSize = easeInOutQuad(currentTime, ringSizeStart, ringSizeEnd - ringSizeStart, animationDuration);
+        const ringX = canvas.width / 2 + (maxRadius - currentRadius) * Math.cos(2 * Math.PI * i / numRings);
+        const ringY = canvas.height / 2 + (maxRadius - currentRadius) * Math.sin(2 * Math.PI * i / numRings);
+        ctx.beginPath();
+        ctx.arc(ringX, ringY, ringSize, 0, 2 * Math.PI);
+        ctx.fillStyle = 'white';
+        ctx.fill();
+      }
+
+      if (currentTime < animationDuration) {
+        requestAnimationFrame(drawAnimation);
+      } else {
+        animationStartTime = null;
+      }
+    }
+
+    function easeInOutQuad(t, b, c, d) {
+      t /= d / 2;
+      if (t < 1) return (c / 2) * t * t + b;
+      t--;
+      return (-c / 2) * (t * (t - 2) - 1) + b;
+    }
+
+    // Check canvas dimensions
+    console.log(`Canvas width: ${canvas.width}, height: ${canvas.height}`);
+
+    // Start the animation
+    let lastTimestamp = performance.now();
+    function animate() {
+      drawAnimation(lastTimestamp);
+      lastTimestamp = performance.now();
+      requestAnimationFrame(animate);
+    }
+    animate();
+  </script>
+</body>
+</html>
