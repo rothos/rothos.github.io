@@ -1,1 +1,84 @@
-hello world
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPA Routing Demo</title>
+    <style>
+        .page {
+            display: none;
+            padding: 20px;
+        }
+        .page.active {
+            display: block;
+        }
+        nav {
+            background: #f0f0f0;
+            padding: 1rem;
+        }
+        nav a {
+            margin-right: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="nav-link">Home</a>
+        <a href="/art/" class="nav-link">Art Gallery</a>
+        <a href="/about/" class="nav-link">About</a>
+    </nav>
+
+    <div id="home" class="page">
+        <h1>Welcome to Home</h1>
+        <p>This is the main page of our site.</p>
+    </div>
+
+    <div id="art" class="page">
+        <h1>Art Gallery</h1>
+        <p>Here's where your art would be displayed.</p>
+    </div>
+
+    <div id="about" class="page">
+        <h1>About</h1>
+        <p>About page content here.</p>
+    </div>
+
+    <script>
+        // Function to show the appropriate page
+        function showPage(pathname) {
+            // Remove leading and trailing slashes
+            const route = pathname.replace(/^\/|\/$/g, '') || 'home';
+            
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show the requested page
+            const page = document.getElementById(route);
+            if (page) {
+                page.classList.add('active');
+            }
+        }
+
+        // Handle direct navigation
+        showPage(window.location.pathname);
+
+        // Handle clicks on navigation links
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pathname = e.target.getAttribute('href');
+                // Update URL without page reload
+                window.history.pushState({}, '', pathname);
+                showPage(pathname);
+            });
+        });
+
+        // Handle browser back/forward buttons
+        window.addEventListener('popstate', () => {
+            showPage(window.location.pathname);
+        });
+    </script>
+</body>
+</html>
