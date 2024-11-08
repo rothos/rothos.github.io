@@ -199,7 +199,7 @@
             radialWave: {
                 amplitude: 0.1,
                 length: 13.5,
-                speed: 0.8
+                speed: 0.4
             }
         },
         rendering: {
@@ -360,17 +360,17 @@
 
             float ripples = 0.5 * (1.0 + sin(distance/u_radialWaveLength - quantizedTime*u_radialWaveSpeed));
             float rippleFilter = sin(distance/u_radialWaveLength*.888 + angle)
-                                        + sin(7.0*angle - quantizedTime)
-                                        + sin(5.0*angle + 0.7*quantizedTime + 1.0);
+                                        + sin(distance/8.33 + 7.0*angle - quantizedTime)
+                                        + sin(distance/10.0 + 5.0*angle - 0.7*quantizedTime + 1.0);
 
             rippleFilter = 0.5 * (rippleFilter + 3.0) / 3.0;
 
-            float spiralValue = 0.0*test + pow(ripples, 100.0) * pow(rippleFilter, 3.0);
+            float spiralValue = 0.0*test + pow(ripples, 100.0) * pow(rippleFilter, 4.0);
             // float spiralValue = 0.0*test + rippleFilter;
 
             spiralValue = mod(spiralValue, 1.0);
 
-            vec3 color = hsl2rgb(0.0, 0.0, spiralValue*0.5);
+            vec3 color = hsl2rgb(0.0, 0.0, spiralValue*0.8);
             
 
 
