@@ -223,7 +223,7 @@
         spiral: {
             tightness: 150,
             radialWave: {
-                amplitude: 0.12,
+                amplitude: 0.08,
                 length: 10
             }
         },
@@ -356,7 +356,7 @@
                 (distance/u_spiralTightness) * (
                     // This line determines the "spin wobble" -- 0.5 is the wobble phase shift
                     0.5 + u_spiralWobbleAmplitude * sin(4.0 - u_spiralWobbleSpeed * quantizedTime) / sqrt(safeDistance) +
-                    u_radialWaveAmplitude * sin(distance/u_radialWaveLength - quantizedTime*u_radialWaveSpeed)
+                    u_radialWaveAmplitude/sqrt(distance)*22.0 * sin(distance/u_radialWaveLength - quantizedTime*u_radialWaveSpeed)
                 ) + 
                 quantizedTime * u_spiralSpinSpeed;
             
