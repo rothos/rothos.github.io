@@ -176,6 +176,15 @@
     </div>
 
     <script>
+    function deepMerge(target, source) {
+        for (const key in source) {
+            if (source[key] instanceof Object && key in target) {
+                Object.assign(source[key], deepMerge(target[key], source[key]));
+            }
+        }
+        return { ...target, ...source };
+    }
+
     // Configuration object
     const defaultConfig = {
         animation: {
@@ -209,18 +218,19 @@
         }
     };
 
-    const mobileConfig = {
-        ...defaultConfig,
+
+    const mobileConfig = deepMerge(defaultConfig, {
         spiral: {
-            ...defaultConfig.spiral,
             tightness: 150,
             radialWave: {
-                ...defaultConfig.spiral.radialWave,
-                amplitude: .12,
+                amplitude: 0.12,
                 length: 10
             }
+        },
+        noise: {
+            intensity: 3.75
         }
-    };
+    });
 
     // Shader sources
     const vertexShaderSource = `
