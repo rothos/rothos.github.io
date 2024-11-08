@@ -203,7 +203,7 @@
             }
         },
         rendering: {
-            spiralPixelSize: 4,
+            spiralPixelSize: 1,
             noisePixelSize: 1
         },
         noise: {
@@ -359,14 +359,20 @@
                 ) + (quantizedTime * u_spiralSpinSpeed)*0.0;
 
             float radialSine = 0.5 * (1.0 + sin(distance/u_radialWaveLength - quantizedTime*u_radialWaveSpeed));
-            float constantRadialSine = 0.5 * (1.0 + sin(distance/u_radialWaveLength*.888)) + sin(3.0*angle*quantizedTime);
+            float constantRadialSine = sin(distance/u_radialWaveLength*.888)
+                                        + sin(7.0*angle - quantizedTime)
+                                        + sin(5.0*angle + 0.7*quantizedTime + 1.0);
 
-            float spiralValue = 0.0*test + pow(radialSine, 5.0)*constantRadialSine;
+            constantRadialSine = 0.5 * (constantRadialSine + 3.0) / 3.0;
+
+            float spiralValue = 0.0*test + pow(radialSine, 5.0) - constantRadialSine;
 
             spiralValue = mod(spiralValue, 1.0);
 
-            vec3 color = hsl2rgb(0.0, 0.0, spiralValue);
+            vec3 color = hsl2rgb(0.0, 0.0, spiralValue*0.5);
             
+
+
             // // Calculate spiral value
             // float safeDistance = max(distance, 0.1);
             // float spiralValue = angle + 
