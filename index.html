@@ -358,14 +358,15 @@
                     u_radialWaveAmplitude/sqrt(distance)*22.0 * sin(distance/u_radialWaveLength - quantizedTime*u_radialWaveSpeed)
                 ) + (quantizedTime * u_spiralSpinSpeed)*0.0;
 
-            float radialSine = 0.5 * (1.0 + sin(distance/u_radialWaveLength - quantizedTime*u_radialWaveSpeed));
-            float constantRadialSine = sin(distance/u_radialWaveLength*.888)
+            float ripples = 0.5 * (1.0 + sin(distance/u_radialWaveLength - quantizedTime*u_radialWaveSpeed));
+            float rippleFilter = sin(distance/u_radialWaveLength*.888 + angle)
                                         + sin(7.0*angle - quantizedTime)
                                         + sin(5.0*angle + 0.7*quantizedTime + 1.0);
 
-            constantRadialSine = 0.5 * (constantRadialSine + 3.0) / 3.0;
+            rippleFilter = 0.5 * (rippleFilter + 3.0) / 3.0;
 
-            float spiralValue = 0.0*test + pow(radialSine, 5.0) - constantRadialSine;
+            float spiralValue = 0.0*test + pow(ripples, 100.0) * pow(rippleFilter, 3.0);
+            // float spiralValue = 0.0*test + rippleFilter;
 
             spiralValue = mod(spiralValue, 1.0);
 
