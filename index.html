@@ -352,17 +352,34 @@
 
             // Calculate spiral value
             float safeDistance = max(distance, 0.1);
-            float spiralValue = angle + 
-                (distance/u_spiralTightness) * (
-                    // This line determines the "spin wobble" -- 0.5 is the wobble phase shift
-                    0.5 + u_spiralWobbleAmplitude * sin(4.0 - u_spiralWobbleSpeed * quantizedTime) / sqrt(safeDistance) +
+
+            float test = 0.0*angle + (distance/u_spiralTightness)*0.0 + (
+                    0.0*(0.5 + u_spiralWobbleAmplitude * sin(4.0 - u_spiralWobbleSpeed * quantizedTime) / sqrt(safeDistance)) +
                     u_radialWaveAmplitude/sqrt(distance)*22.0 * sin(distance/u_radialWaveLength - quantizedTime*u_radialWaveSpeed)
-                ) + 
-                quantizedTime * u_spiralSpinSpeed;
+                ) + (quantizedTime * u_spiralSpinSpeed)*0.0;
+
+            float radialSine = 0.5 * (1.0 + sin(distance/u_radialWaveLength - quantizedTime*u_radialWaveSpeed));
+            float constantRadialSine = 0.5 * (1.0 + sin(distance/u_radialWaveLength*.888)) * sin(3.0*angle*quantizedTime);
+
+            float spiralValue = 0.0*test + pow(radialSine, 5.0)*constantRadialSine;
+
+            spiralValue = mod(spiralValue, 1.0);
+
+            vec3 color = hsl2rgb(0.0, 0.0, spiralValue);
             
-            spiralValue = mod(mod(spiralValue / (2.0 * PI), 1.0) + 1.0, 1.0);
-            
-            vec3 color = hsl2rgb(spiralValue, u_saturation, u_lightness);
+            // // Calculate spiral value
+            // float safeDistance = max(distance, 0.1);
+            // float spiralValue = angle + 
+            //     (distance/u_spiralTightness) * (
+            //         // This line determines the "spin wobble" -- 0.5 is the wobble phase shift
+            //         0.5 + u_spiralWobbleAmplitude * sin(4.0 - u_spiralWobbleSpeed * quantizedTime) / sqrt(safeDistance) +
+            //         u_radialWaveAmplitude/sqrt(distance)*22.0 * sin(distance/u_radialWaveLength - quantizedTime*u_radialWaveSpeed)
+            //     ) + 
+            //     quantizedTime * u_spiralSpinSpeed;
+            //
+            // spiralValue = mod(mod(spiralValue / (2.0 * PI), 1.0) + 1.0, 1.0);
+            //
+            // vec3 color = hsl2rgb(spiralValue, u_saturation, u_lightness);
 
             float noiseValue = getNoiseValue(gl_FragCoord.xy, quantizedTime);
             color = color + vec3(noiseValue);
