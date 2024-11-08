@@ -359,7 +359,7 @@
                 ) + (quantizedTime * u_spiralSpinSpeed)*0.0;
 
             float radialSine = 0.5 * (1.0 + sin(distance/u_radialWaveLength - quantizedTime*u_radialWaveSpeed));
-            float constantRadialSine = 0.5 * (1.0 + sin(distance/u_radialWaveLength*.888)) * sin(3.0*angle*quantizedTime);
+            float constantRadialSine = 0.5 * (1.0 + sin(distance/u_radialWaveLength*.888)) + sin(3.0*angle*quantizedTime);
 
             float spiralValue = 0.0*test + pow(radialSine, 5.0)*constantRadialSine;
 
