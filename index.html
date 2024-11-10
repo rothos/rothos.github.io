@@ -346,9 +346,12 @@
             
             for (float i = 0.0; i < 1000.0; i += 1.0) {
                 if (i >= numWaves) break;
-                float angle = fract(sin(i*1232.399963)) * 6.28318530718;
+                // float angle = fract(sin(i*1232.39963)*100.) * PI;
+                // float rand = fract(sin(i*3243.49301)*100.);
+
+                float angle = random(vec2(0., 0.), i) * PI;
+                float rand = random(vec2(0., 0.), t/1000000.) * PI;
                 vec2 dir = vec2(cos(angle), sin(angle));
-                float rand = fract(sin(i*3243.49301));
                 
                 float amp = 4.0 * pow(0.86, i) + rand;
                 float freq = pow(1.13, i) * 5.0 / (1.0 + rand);
@@ -377,15 +380,15 @@
             
             float h;
             vec2 grad;
-            waves(uvn, t, 22.0, h, grad);
+            waves(uvn, t, 45.0, h, grad);
             
             vec2 distorted_uv = uv + grad;
             float d = length(distorted_uv);
             float angle2 = -atan(distorted_uv.y, distorted_uv.x);
             
-            d = sin(d*12.0 - t + angle2/2.0)/12.0;
+            d = sin(d*12.0 - t/2. + angle2/2.0)/12.0;
             // float lightness = 1.2 - smoothstep(0.0, 0.004, abs(d));
-            float lightness = 0.16 + pow(1. - smoothstep(0.0, .02, abs(d)), .01);
+            float lightness = 0.16 + pow(1. - smoothstep(0.0, .01, abs(d)), .01);
 
 
 
