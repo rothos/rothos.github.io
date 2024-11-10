@@ -208,7 +208,7 @@
             noisePixelSize: 1
         },
         noise: {
-            intensity: 10,
+            intensity: 5,
             updateFraction: 0.25,
             tileSize: 500,
             noiseFPS: 15
@@ -369,7 +369,7 @@
             vec2 pixelCoord = floor(gl_FragCoord.xy / u_spiralPixelSize) * u_spiralPixelSize + u_spiralPixelSize/2.0;
             vec2 pos = pixelCoord - u_center;
 
-            float darkFactor = 2.;
+            float darkFactor = 3.;
 
             vec2 uv = pos/450.;
             vec2 uvn = 2.0 * uv;
@@ -384,7 +384,10 @@
             float angle2 = -atan(distorted_uv.y, distorted_uv.x);
             
             d = sin(d*12.0 - t + angle2/2.0)/12.0;
-            float lightness = 1.0 - smoothstep(0.0, 0.004, abs(d));
+            // float lightness = 1.2 - smoothstep(0.0, 0.004, abs(d));
+            float lightness = 0.16 + pow(1. - smoothstep(0.0, .02, abs(d)), .01);
+
+
 
 
             float distance = length(pos);
