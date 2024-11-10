@@ -203,7 +203,7 @@
             }
         },
         rendering: {
-            spiralPixelSize: 4,
+            spiralPixelSize: 1,
             noisePixelSize: 1
         },
         noise: {
@@ -339,11 +339,65 @@
             return gaussianRandom(tileCoord, lastUpdateFrame) * u_noiseIntensity/255.;
         }
 
+        void waves(vec2 pos, float t, float numWaves, out float height, out vec2 gradient) {
+            height = 0.0;
+            gradient = vec2(0.0);
+
+            // for (float i = 0.0; i < numWaves; i += 1.0) {
+            for (int k = 0; k < 0; k += 1) {
+                float i = float(k);
+
+                // Generate wave parameters using hash functions
+                float angle = fract(sin(i*1232.399963)) * 6.28318530718;
+                vec2 dir = vec2(cos(angle), sin(angle));
+                float rand = fract(sin(i*3243.49301));
+                
+                float amp = 4.0 * pow(0.86, i) + rand;
+                float freq = pow(1.13, i) * 5.0 / (1.0 + rand);
+                
+                // Calculate wave contribution
+                float wave = dot(pos, dir) * freq + rand + t;
+                float s = sin(wave);
+                float c = cos(wave);
+                
+                height += amp * s;
+                gradient += amp * freq * dir * c;
+            }
+
+            gradient *= 0.001;
+        }
+
         void main() {
             // Pixelate coordinates for spiral
             vec2 pixelCoord = floor(gl_FragCoord.xy / u_spiralPixelSize) * u_spiralPixelSize + u_spiralPixelSize/2.0;
             vec2 pos = pixelCoord - u_center;
+
+
+
+            vec2 uv = pos;
+            vec2 uvn = 2.0 * uv;
+            float t = u_time/2.5;
             
+            // Calculate wave height and gradient at once
+            float h;
+            vec2 grad;
+            waves(uvn, t, 0.0, h, grad);
+            
+            vec2 distorted_uv = uv + grad;
+            float d = length(distorted_uv);
+            float angle1 = -atan(uv.y, uv.x);
+            
+            d = sin(d*12.0 - t + angle1/2.0)/12.0;
+            //float lightness = 1.0 - smoothstep(0.0, 0.003, abs(d));
+            
+            float l = 1.0 - smoothstep(0.0, 0.03, abs(d));
+            gl_FragColor = vec4(l,l,l, 1.0);
+
+
+
+
+
+
             float distance = length(pos);
             float angle = -atan(pos.y, pos.x);
 
@@ -368,7 +422,7 @@
             color = color + vec3(noiseValue);
             color = clamp(color, 0.0, 1.0);
 
-            gl_FragColor = vec4(color, 1.0);
+            // gl_FragColor = vec4(color, 1.0);
         }
     `;
 
