@@ -392,10 +392,12 @@
                       If it looks good, then maybe make the dots move slowly, under the waves.
             */
 
-            d = sin(d*12.0 - t/2. + angle2/2.0)/12.0;
-            d = length(distorted_uv-vec2(0.8,0.8))/2.;
+            //d = sin(d*12.0 - t/2. + angle2/2.0)/12.0;
+            
+            d = length(fract(distorted_uv*3.) - vec2(0.5, 0.5)) / 2.;
+            
             // float lightness = 1.2 - smoothstep(0.0, 0.004, abs(d));
-            float lightness = 0.16 + pow(1. - smoothstep(0.0, .005, abs(d)), .01);
+            float lightness = 0.16 + pow(1. - smoothstep(0.0, .02, abs(d)), .01);
 
 
 
