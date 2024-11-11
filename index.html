@@ -386,10 +386,16 @@
             vec2 distorted_uv = uv + grad;
             float d = length(distorted_uv);
             float angle2 = -atan(distorted_uv.y, distorted_uv.x);
-            
+
+            /*
+                IDEA: Instead of a spiral, what if there were just come scattered dots on the screen?
+                      If it looks good, then maybe make the dots move slowly, under the waves.
+            */
+
             d = sin(d*12.0 - t/2. + angle2/2.0)/12.0;
+            d = length(distorted_uv-vec2(0.8,0.8))/2.;
             // float lightness = 1.2 - smoothstep(0.0, 0.004, abs(d));
-            float lightness = 0.16 + pow(1. - smoothstep(0.0, .02, abs(d)), .01);
+            float lightness = 0.16 + pow(1. - smoothstep(0.0, .005, abs(d)), .01);
 
 
 
