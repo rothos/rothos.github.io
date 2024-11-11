@@ -373,7 +373,7 @@
             vec2 pixelCoord = floor(gl_FragCoord.xy / u_spiralPixelSize) * u_spiralPixelSize + u_spiralPixelSize/2.0;
             vec2 pos = pixelCoord - u_center;
 
-            float darkFactor = 3.;
+            float darkFactor = 3.78;
 
             vec2 uv = pos/450.;
             vec2 uvn = 2.0 * uv;
