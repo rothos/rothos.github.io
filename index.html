@@ -386,7 +386,6 @@
             
             vec2 distorted_uv = uv + grad;
             float d = length(distorted_uv);
-            float angle2 = -atan(distorted_uv.y, distorted_uv.x);
 
             d = length(fract(distorted_uv*5.) - vec2(0.5, 0.5)) / 4.; // try 4. -> 6. for bigger blobs
             
