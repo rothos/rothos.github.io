@@ -208,7 +208,7 @@
             noisePixelSize: 1
         },
         noise: {
-            intensity: 5,
+            intensity: 4,
             updateFraction: 0.25,
             tileSize: 500,
             noiseFPS: 15
@@ -354,10 +354,11 @@
 
                 vec2 dir = vec2(cos(angle), sin(angle));
                 
-                float amp = 4.0 * pow(0.86, i) + rand;
-                float freq = pow(1.13, i) * 5.0 / (1.0 + rand);
+                float amp = 4.0 * pow(0.945, i) + rand;
+                float freq = pow(1.028, i) * 5.0 / (1.0 + rand);
                 
-                float wave = dot(pos, dir) * freq + rand + t;
+                // angle*i is a "random" phase shift
+                float wave = dot(pos, dir) * freq + angle*i + t*pow(i+1., .2);
                 float s = sin(wave);
                 float c = cos(wave);
                 
@@ -381,24 +382,12 @@
             
             float h;
             vec2 grad;
-            waves(uvn, t/2.5, 23.0, h, grad);
+            waves(uvn, t/2.5, 93.0, h, grad);
             
             vec2 distorted_uv = uv + grad;
             float d = length(distorted_uv);
-            float angle2 = -atan(distorted_uv.y, distorted_uv.x);
-
-            /*
-                IDEA: Instead of a spiral, what if there were just come scattered dots on the screen?
-                      If it looks good, then maybe make the dots move slowly, under the waves.
-            */
-
-            //d = sin(d*12.0 - t/2. + angle2/2.0)/12.0;
-            
-            d = length(fract(distorted_uv*3.) - vec2(0.5, 0.5)) / 2.;
-            
-            // float lightness = 1.2 - smoothstep(0.0, 0.004, abs(d));
-            float lightness = 0.16 + pow(1. - smoothstep(0.0, .02, abs(d)), .01);
-
+            d = length(grad)*6.;
+            float lightness = d;
 
 
 
