@@ -1,5 +1,12 @@
 {
   "links": [
-    {"title": "Example", "url": "example.com"}
+    {
+      "title": "Example",
+      "url": "example.com"
+    },
+    {
+      "title": "Garlol",
+      "url": "gar.lol"
+    }
   ]
 }
