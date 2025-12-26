@@ -1,0 +1,12 @@
+<ul id="links"></ul>
+
+<script>
+fetch("/data/links.json")
+  .then(r => r.json())
+  .then(d => {
+    document.getElementById("links").innerHTML =
+      d.links.map(
+        l => `<li><a href="${l.url}">${l.title}</a></li>`
+      ).join("");
+  });
+</script>
