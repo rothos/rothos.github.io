@@ -2,11 +2,11 @@
   "links": [
     {
       "title": "Example",
-      "url": "example.com"
+      "url": "//example.com"
     },
     {
       "title": "Garlol",
-      "url": "gar.lol"
+      "url": "//gar.lol"
     }
   ]
 }
