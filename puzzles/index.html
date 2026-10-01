@@ -161,6 +161,26 @@
             flex-wrap: wrap;
             gap: .35rem 1.6rem;
         }
+
+        h2 .num,
+        .words li {
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .words li.flipped {
+            color: var(--muted);
+        }
+
+        .solution {
+            margin-top: .9rem;
+            padding-left: 1.25rem;
+            border-left: 2px solid var(--rule);
+            color: var(--muted);
+            font-size: .95rem;
+        }
     </style>
 </head>
 <body>
@@ -172,17 +192,17 @@
             <h1>Puzzles</h1>
         </header>
 
-        <section class="puzzle">
+        <section class="puzzle" data-s="PHA+VGFrZSBhbnkgMTAgY29pbnMgYXMgb25lIHBpbGUgYW5kIGZsaXAgZXZlcnkgY29pbiBpbiBpdC4gSWYgdGhhdCBwaWxlIHN0YXJ0ZWQgd2l0aCA8ZW0+azwvZW0+IGhlYWRzLCB0aGUgb3RoZXIgcGlsZSBoYXMgMTAmbmJzcDsmbWludXM7Jm5ic3A7PGVtPms8L2VtPiBoZWFkcywgYW5kIGFmdGVyIGZsaXBwaW5nLCBzbyBkb2VzIHRoaXMgb25lLjwvcD4=">
             <h2><span class="num">1</span> Coins in the dark</h2>
             <p>On a table in a dark room there are 100 coins. Exactly 10 are heads-up; the rest are tails-up. You may not look at or feel which is which. You may turn coins over. Split the coins into two piles so that the two piles have the same number of heads-up coins.</p>
         </section>
 
-        <section class="puzzle">
+        <section class="puzzle" data-s="PHA+QSByZWd1bGFyIGhleGFnb24uPC9wPg==">
             <h2><span class="num">2</span> Cube cut</h2>
             <p>Hang a cube from one of its corners. Pass a plane through it horizontally, at the height of the cube’s centre. What shape is the cross section?</p>
         </section>
 
-        <section class="puzzle">
+        <section class="puzzle" data-s="PHA+Rml2ZS4gUGVyc29ucyAxJm5kYXNoOzUgdGVsbCB0aGUgdHJ1dGggYW5kIHBlcnNvbnMgNiZuZGFzaDsxMCBsaWUuIElmIHRoZXJlIGFyZSA8ZW0+TDwvZW0+IGxpYXJzLCB0aGUgcGVvcGxlIHNheWluZyAmbGRxdW87YXQgbGVhc3QgMSZyZHF1bzsgdGhyb3VnaCAmbGRxdW87YXQgbGVhc3QgPGVtPkw8L2VtPiZyZHF1bzsgYXJlIHRydXRoZnVsLCBzbyB0aGVyZSBhcmUgMTAmbmJzcDsmbWludXM7Jm5ic3A7PGVtPkw8L2VtPiB0cnV0aGZ1bCBwZW9wbGUgYW5kIDxlbT5MPC9lbT4mbmJzcDs9Jm5ic3A7MTAmbmJzcDsmbWludXM7Jm5ic3A7PGVtPkw8L2VtPi48L3A+">
             <h2><span class="num">3</span> Ten liars</h2>
             <p>Ten people are in a room. Each one either always tells the truth or always lies.</p>
             <ol>
@@ -194,17 +214,17 @@
             <p>How many liars are there?</p>
         </section>
 
-        <section class="puzzle">
+        <section class="puzzle" data-s="PHA+VGhlIGZpcnN0IHN0YXRlbWVudCBtZWFucyBleGFjdGx5IG9uZSBvZiB0aGVtIGxpZXMuIEFzayB0aGUgc2Vjb25kIHBlcnNvbiwgJmxkcXVvO1dvdWxkIHRoZSBvdGhlciBvbmUgc2F5IHRoZSBsZWZ0IHBhdGggaXMgc2FmZT8mcmRxdW87IFRoZSBhbnN3ZXIgaXMgYWx3YXlzIHdyb25nLCBzbyBnbyB0aGUgb3Bwb3NpdGUgd2F5LjwvcD4=">
             <h2><span class="num">4</span> Two liars</h2>
             <p>A fork in the road has one safe path and one unsafe path. Two people stand there. Each either always tells the truth or always lies, and you do not know who is which. One of them says, “The other one lies.” You may ask the other person a single yes-or-no question. What do you ask to find out which path is safe?</p>
         </section>
 
-        <section class="puzzle">
+        <section class="puzzle" data-s="PHA+TnVtYmVyIHRoZSBjYXNrZXRzIDEmbmRhc2g7NiBhbmQgb3BlbiAyLCAzLCA0LCA1LCB0aGVuIDUsIDQsIDMsIDIuIEhpcyBjYXNrZXQgbnVtYmVyIHN3aXRjaGVzIGJldHdlZW4gb2RkIGFuZCBldmVuIGV2ZXJ5IG5pZ2h0LiBUaGUgZmlyc3Qgc3dlZXAgY2F0Y2hlcyBoaW0gaWYgaGUgc3RhcnRzIG9uIHRoZSBzYW1lIHBhcml0eSBhcyB5b3UsIGFuZCB0aGUgcmVwZWF0IG9mIDUgc3dhcHMgeW91ciBwYXJpdHkgc28gdGhlIHNlY29uZCBzd2VlcCBjYXRjaGVzIGhpbSBvdGhlcndpc2UuPC9wPg==">
             <h2><span class="num">5</span> Vampire hunting</h2>
             <p>A vampire sleeps in one of six caskets in a row. Each night he moves to a casket next to the one he used the night before. Each day you may open a single casket. Give a strategy for choosing which casket to open which is guaranteed to catch him.</p>
         </section>
 
-        <section class="puzzle">
+        <section class="puzzle" data-s="PHA+T25lIGN1YmUgaGFzIDAsIDEsIDIsIDMsIDQsIDUgYW5kIHRoZSBvdGhlciBoYXMgMCwgMSwgMiwgNiwgNywgOC4gVGhlIDYgdHVybnMgdXBzaWRlIGRvd24gdG8gbWFrZSBhIDkuIEJvdGggY3ViZXMgbmVlZCAwLCAxIGFuZCAyIChmb3IgMTEsIDIyLCBhbmQgMDEmbmRhc2g7MDkpLCB3aGljaCBsZWF2ZXMgc2l4IGZhY2VzIGZvciAzJm5kYXNoOzguPC9wPg==">
             <h2><span class="num">6</span> Calendar cubes</h2>
             <p>A desk calendar shows the day of the month with two cubes, which you may place in either order. The faces of the cubes must be able to form every date from 00 through 31. What digits go on the six faces of each cube?</p>
         </section>
@@ -213,29 +233,71 @@
             <p class="intro">Each word below can be rearranged into <em>exactly one</em> other English word. Find it.</p>
             <div class="word-group">
                 <h3>4 letters</h3>
-                <ul class="words"><li>case</li><!-- <li>else</li> --><li>soup</li><li>prey</li></ul>
+                <ul class="words"><li data-a="YWNlcw==">case</li><!-- <li>else</li> --><li data-a="b3B1cw==">soup</li><li data-a="cHlyZQ==">prey</li></ul>
             </div>
             <div class="word-group">
                 <h3>5 letters</h3>
-                <ul class="words"><li>north</li><li>moral</li><li>dying</li><li>eager</li><li>owned</li><li>spice</li><li>wakes</li></ul>
+                <ul class="words"><li data-a="dGhvcm4=">north</li><li data-a="bW9sYXI=">moral</li><li data-a="ZGluZ3k=">dying</li><li data-a="YWdyZWU=">eager</li><li data-a="ZW5kb3c=">owned</li><li data-a="ZXBpY3M=">spice</li><li data-a="YXNrZXc=">wakes</li></ul>
             </div>
             <div class="word-group">
                 <h3>6 letters</h3>
-                <ul class="words"><li>praise</li><li>center</li><li>squeal</li><li>ranted</li><li>freaky</li><li>finger</li><li>circle</li><li>option</li><!-- <li>demand</li> --><li>monday</li></ul>
+                <ul class="words"><li data-a="YXNwaXJl">praise</li><li data-a="cmVjZW50">center</li><li data-a="ZXF1YWxz">squeal</li><li data-a="YXJkZW50">ranted</li><li data-a="ZmFrZXJ5">freaky</li><li data-a="ZnJpbmdl">finger</li><li data-a="Y2xlcmlj">circle</li><li data-a="cG90aW9u">option</li><!-- <li>demand</li> --><li data-a="ZHluYW1v">monday</li></ul>
             </div>
             <div class="word-group">
                 <h3>7 letters</h3>
-                <ul class="words"><li>caution</li><li>saintly</li><li>license</li><li>outside</li></ul>
+                <ul class="words"><li data-a="YXVjdGlvbg==">caution</li><li data-a="bmFzdGlseQ==">saintly</li><li data-a="c2lsZW5jZQ==">license</li><li data-a="dGVkaW91cw==">outside</li></ul>
             </div>
             <div class="word-group">
                 <h3>8 letters</h3>
-                <ul class="words"><li>ruthless</li><li>ringtone</li><li>scramble</li><li>blessing</li></ul>
+                <ul class="words"><li data-a="aHVzdGxlcnM=">ruthless</li><li data-a="bml0cm9nZW4=">ringtone</li><li data-a="Y2xhbWJlcnM=">scramble</li><li data-a="Z2xpYm5lc3M=">blessing</li></ul>
             </div>
             <div class="word-group">
                 <h3>10 letters</h3>
-                <ul class="words"><li>supersonic</li></ul>
+                <ul class="words"><li data-a="cGVyY3Vzc2lvbg==">supersonic</li></ul>
             </div>
         </section>
     </main>
+    <script>
+        const decode = s => new TextDecoder().decode(Uint8Array.from(atob(s), c => c.charCodeAt(0)));
+
+        function toggle(el, show) {
+            if (el.matches('.words li')) {
+                if (!el.dataset.w) el.dataset.w = el.textContent;
+                const on = show ?? !el.classList.contains('flipped');
+                el.textContent = on ? decode(el.dataset.a) : el.dataset.w;
+                el.classList.toggle('flipped', on);
+            } else {
+                const section = el.closest('.puzzle');
+                let sol = section.querySelector('.solution');
+                if (!sol) {
+                    sol = document.createElement('div');
+                    sol.className = 'solution';
+                    sol.hidden = true;
+                    sol.innerHTML = decode(section.dataset.s);
+                    section.append(sol);
+                }
+                sol.hidden = !(show ?? sol.hidden);
+            }
+        }
+
+        // three slow taps (0.4–1.5s apart) on the same number or word
+        let last = { el: null, t: 0, n: 0 };
+        document.addEventListener('click', e => {
+            const el = e.target.closest('h2 .num, .words li[data-a]');
+            if (!el) return;
+            const dt = e.timeStamp - last.t;
+            last = (el === last.el && dt > 400 && dt < 1500)
+                ? { el, t: e.timeStamp, n: last.n + 1 }
+                : { el, t: e.timeStamp, n: 1 };
+            if (last.n === 3) { toggle(el); last.n = 0; }
+        });
+
+        const revealAll = () => {
+            if (location.hash === '#answers')
+                document.querySelectorAll('h2 .num, .words li[data-a]').forEach(el => toggle(el, true));
+        };
+        revealAll();
+        addEventListener('hashchange', revealAll);
+    </script>
 </body>
 </html>
