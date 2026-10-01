@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VSL74PME4G"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-VSL74PME4G');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A few puzzles, collected by Gar">
+    <title>Puzzles · gar.lol</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #fff;
+            --text: #222;
+            --muted: #888;
+            --rule: #e6e6e6;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #151515;
+                --text: #e4e4e4;
+                --muted: #8a8a8a;
+                --rule: #2c2c2c;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 1.05rem;
+            line-height: 1.75;
+            color: var(--text);
+            background-color: var(--bg);
+            padding: 4rem 1.25rem 6rem;
+        }
+
+        main {
+            max-width: 36rem;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.2rem;
+            margin-bottom: 3.5rem;
+        }
+
+        .logo-container {
+            width: 64px;
+            height: 64px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: transform .3s ease;
+        }
+
+            .logo-container:hover {
+                transform: rotate(-12deg);
+            }
+
+            .logo-container img {
+                width: 46px;
+                height: 46px;
+                object-fit: contain;
+            }
+
+        h1 {
+            font-family: 'Pixelify Sans', sans-serif;
+            font-weight: 400;
+            font-size: 2rem;
+            letter-spacing: .02em;
+        }
+
+        .puzzle {
+            padding: 2.25rem 0;
+            border-top: 1px solid var(--rule);
+        }
+
+        h2 {
+            display: flex;
+            align-items: baseline;
+            gap: .75rem;
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: .75rem;
+        }
+
+            h2 .num {
+                color: var(--muted);
+                font-size: .95rem;
+                font-weight: 400;
+            }
+
+        .puzzle p + p,
+        .puzzle ol + p {
+            margin-top: .9rem;
+        }
+
+        .puzzle ol {
+            list-style: none;
+            margin-top: .9rem;
+            padding-left: 1.25rem;
+            border-left: 2px solid var(--rule);
+        }
+
+        .puzzle .ellipsis {
+            color: var(--muted);
+        }
+        .anagrams {
+            margin-top: 2.25rem;
+            padding-top: 4.5rem;
+            border-top: 1px solid var(--rule);
+        }
+
+            .anagrams h1 {
+                text-align: center;
+            }
+
+            .anagrams .intro {
+                text-align: center;
+                margin: .75rem auto 1rem;
+                max-width: 28rem;
+            }
+
+        .word-group {
+            margin-top: 1.75rem;
+        }
+
+        h3 {
+            font-size: .8rem;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: .4rem;
+        }
+
+        .words {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: .35rem 1.6rem;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <header>
+            <a href="/" class="logo-container" aria-label="Back to gar.lol">
+                <img src="/moonface.png" alt="" width="46" height="46">
+            </a>
+            <h1>Puzzles</h1>
+        </header>
+
+        <section class="puzzle">
+            <h2><span class="num">1</span> Coins in the dark</h2>
+            <p>On a table in a dark room there are 100 coins. Exactly 10 are heads-up; the rest are tails-up. You may not look at or feel which is which. You may turn coins over. Split the coins into two piles so that the two piles have the same number of heads-up coins.</p>
+        </section>
+
+        <section class="puzzle">
+            <h2><span class="num">2</span> Cube cut</h2>
+            <p>Hang a cube from one of its corners. Pass a plane through it horizontally, at the height of the cube’s centre. What shape is the cross section?</p>
+        </section>
+
+        <section class="puzzle">
+            <h2><span class="num">3</span> Ten liars</h2>
+            <p>Ten people are in a room. Each one either always tells the truth or always lies.</p>
+            <ol>
+                <li>Person 1 says, “There is at least one liar here.”</li>
+                <li>Person 2 says, “There are at least two liars here.”</li>
+                <li class="ellipsis">…</li>
+                <li>Person 10 says, “There are at least ten liars here.”</li>
+            </ol>
+            <p>How many liars are there?</p>
+        </section>
+
+        <section class="puzzle">
+            <h2><span class="num">4</span> Two liars</h2>
+            <p>A fork in the road has one safe path and one unsafe path. Two people stand there. Each either always tells the truth or always lies, and you do not know who is which. One of them says, “The other one lies.” You may ask the other person a single yes-or-no question. What do you ask to find out which path is safe?</p>
+        </section>
+
+        <section class="puzzle">
+            <h2><span class="num">5</span> Vampire hunting</h2>
+            <p>A vampire sleeps in one of six caskets in a row. Each night he moves to a casket next to the one he used the night before. Each day you may open a single casket. Give a strategy for choosing which casket to open which is guaranteed to catch him.</p>
+        </section>
+
+        <section class="puzzle">
+            <h2><span class="num">6</span> Calendar cubes</h2>
+            <p>A desk calendar shows the day of the month with two cubes, which you may place in either order. The faces of the cubes must be able to form every date from 00 through 31. What digits go on the six faces of each cube?</p>
+        </section>
+        <section class="anagrams">
+            <h1>Anagrams</h1>
+            <p class="intro">Each word below can be rearranged into <em>exactly one</em> other English word. Find it.</p>
+            <div class="word-group">
+                <h3>4 letters</h3>
+                <ul class="words"><li>case</li><li>else</li><li>soup</li><li>prey</li></ul>
+            </div>
+            <div class="word-group">
+                <h3>5 letters</h3>
+                <ul class="words"><li>north</li><li>moral</li><li>dying</li><li>eager</li><li>owned</li><li>spice</li><li>wakes</li></ul>
+            </div>
+            <div class="word-group">
+                <h3>6 letters</h3>
+                <ul class="words"><li>praise</li><li>center</li><li>squeal</li><li>ranted</li><li>freaky</li><li>finger</li><li>circle</li><li>option</li><li>demand</li><li>monday</li></ul>
+            </div>
+            <div class="word-group">
+                <h3>7 letters</h3>
+                <ul class="words"><li>caution</li><li>saintly</li><li>license</li><li>outside</li></ul>
+            </div>
+            <div class="word-group">
+                <h3>8 letters</h3>
+                <ul class="words"><li>ruthless</li><li>ringtone</li><li>scramble</li><li>blessing</li></ul>
+            </div>
+            <div class="word-group">
+                <h3>10 letters</h3>
+                <ul class="words"><li>supersonic</li></ul>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
