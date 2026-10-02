@@ -693,6 +693,7 @@
         const store = {
             all() { try { return JSON.parse(localStorage.getItem('anagrams')) || {}; } catch { return {}; } },
             set(w, v) { try { const s = store.all(); s[w] = v; localStorage.setItem('anagrams', JSON.stringify(s)); } catch {} },
+            remove(w) { try { const s = store.all(); delete s[w]; localStorage.setItem('anagrams', JSON.stringify(s)); } catch {} },
         };
 
         function markWord(li, state) {
@@ -700,6 +701,11 @@
             li.classList.remove('solved', 'revealed');
             li.classList.add(state);
             updateProgress();
+        }
+
+        function unmarkWord(li) {
+            li.textContent = li.dataset.w;
+            li.classList.remove('solved', 'revealed');
         }
 
         const progress = document.querySelector('.progress');
@@ -723,10 +729,7 @@
             disarm();
             try { localStorage.removeItem('anagrams'); } catch {}
             if (location.hash === '#answers') history.replaceState(null, '', location.pathname);
-            for (const li of words) {
-                li.textContent = li.dataset.w;
-                li.classList.remove('solved', 'revealed');
-            }
+            words.forEach(unmarkWord);
             updateProgress();
         });
 
@@ -948,6 +951,9 @@
             updatePlaced();
             cur.order.sort((a, b) => a.i - b.i);
             stagger(22);
+            unmarkWord(cur.li);
+            store.remove(cur.word);
+            updateProgress();
         }
 
         function next() {
