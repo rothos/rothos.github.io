@@ -213,6 +213,7 @@
         }
 
         h2 .num,
+        .anagrams h1,
         .words li {
             -webkit-user-select: none;
             user-select: none;
@@ -685,6 +686,14 @@
             if (num && slowTriple(num, e.timeStamp)) toggle(num);
             const li = e.target.closest('.words li[data-a]');
             if (li) openAnagram(li);
+            const title = e.target.closest('.anagrams h1');
+            if (title && slowTriple(title, e.timeStamp)) {
+                for (const li of words) {
+                    if (li.matches('.solved, .revealed')) continue;
+                    markWord(li, 'revealed');
+                    store.set(li.dataset.w, 'revealed');
+                }
+            }
         });
 
         // ---- word list state ----
