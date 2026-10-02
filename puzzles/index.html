@@ -23,6 +23,11 @@
             --text: #222;
             --muted: #888;
             --rule: #e6e6e6;
+            --tile: #f2e5c4;
+            --tile-ink: #2b2519;
+            --win: #cde6bf;
+            --win-ink: #1e3a16;
+            --good: #4c8a38;
         }
 
         @media (prefers-color-scheme: dark) {
@@ -31,6 +36,11 @@
                 --text: #e4e4e4;
                 --muted: #8a8a8a;
                 --rule: #2c2c2c;
+                --tile: #3a342a;
+                --tile-ink: #f1e7d1;
+                --win: #2c4827;
+                --win-ink: #d6efc9;
+                --good: #8fc27a;
             }
         }
 
@@ -142,6 +152,46 @@
                 max-width: 28rem;
             }
 
+        .progress {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: .5rem;
+            font-size: .85rem;
+            color: var(--muted);
+        }
+
+            .progress[hidden] {
+                display: none;
+            }
+
+            .progress button {
+                font: inherit;
+                font-size: .72rem;
+                text-transform: uppercase;
+                letter-spacing: .14em;
+                color: var(--text);
+                background: none;
+                border: 1px solid var(--rule);
+                border-radius: 999px;
+                padding: .35rem .9rem;
+                cursor: pointer;
+                -webkit-tap-highlight-color: transparent;
+                touch-action: manipulation;
+                transition: border-color .2s, color .2s, background-color .2s;
+            }
+
+                .progress button:hover {
+                    border-color: var(--muted);
+                }
+
+                .progress button.armed {
+                    color: var(--bg);
+                    background: var(--text);
+                    border-color: var(--text);
+                }
+
         .word-group {
             margin-top: 1.75rem;
         }
@@ -170,8 +220,338 @@
             touch-action: manipulation;
         }
 
-        .words li.flipped {
+        .words li[data-a] {
+            cursor: pointer;
+            text-decoration: underline dotted transparent;
+            text-underline-offset: .3em;
+            transition: text-decoration-color .2s;
+        }
+
+            .words li[data-a]:hover,
+            .words li[data-a]:focus-visible {
+                text-decoration-color: var(--muted);
+                outline: none;
+            }
+
+            .words li .ans {
+                color: var(--muted);
+            }
+
+            .words li.solved .ans {
+                color: var(--good);
+            }
+
+            .words li.revealed {
+                color: var(--muted);
+            }
+
+        /* ---- interactive anagram ---- */
+
+        .am {
+            position: fixed;
+            inset: 0;
+            z-index: 10;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            touch-action: none;
+        }
+
+            .am[hidden] {
+                display: none;
+            }
+
+        .am-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, .32);
+            -webkit-backdrop-filter: blur(3px);
+            backdrop-filter: blur(3px);
+            opacity: 0;
+            transition: opacity .3s ease;
+        }
+
+        .am.open .am-backdrop {
+            opacity: 1;
+        }
+
+        .am-sheet {
+            position: relative;
+            width: 100%;
+            max-width: 40rem;
+            display: flex;
+            flex-direction: column;
+            min-height: 58svh;
+            padding: .5rem .75rem calc(1.25rem + env(safe-area-inset-bottom));
+            background: var(--bg);
+            border-radius: 18px 18px 0 0;
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, .18);
+            outline: none;
+            transform: translateY(100%);
+            transition: transform .42s cubic-bezier(.2, .9, .25, 1);
+        }
+
+        .am.open .am-sheet {
+            transform: none;
+        }
+
+        .am-sheet.dragging {
+            transition: none;
+        }
+
+        @media (min-width: 640px) {
+            .am {
+                align-items: center;
+            }
+
+            .am-sheet {
+                max-width: 38rem;
+                min-height: 22rem;
+                padding: 1.25rem 2rem 1.5rem;
+                border-radius: 18px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
+                opacity: 0;
+                transform: translateY(14px) scale(.97);
+                transition: transform .35s cubic-bezier(.2, .9, .25, 1), opacity .25s ease;
+            }
+
+            .am.open .am-sheet {
+                opacity: 1;
+            }
+        }
+
+        .am-head {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            padding-top: .6rem;
+        }
+
+        .am-grip {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 36px;
+            height: 4px;
+            margin-left: -18px;
+            border-radius: 2px;
+            background: var(--rule);
+        }
+
+        @media (min-width: 640px) {
+            .am-grip {
+                display: none;
+            }
+        }
+
+        .am-word {
+            padding: .4rem 1rem;
+            font-size: .8rem;
+            text-transform: uppercase;
+            letter-spacing: .22em;
             color: var(--muted);
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .am button {
+            font: inherit;
+            font-size: .75rem;
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            color: var(--muted);
+            background: none;
+            border: 0;
+            padding: .6rem .4rem;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            transition: color .2s;
+        }
+
+            .am button:hover,
+            .am button:focus-visible {
+                color: var(--text);
+                outline: none;
+            }
+
+            .am button:disabled {
+                opacity: .35;
+                pointer-events: none;
+            }
+
+        .am .am-close {
+            position: absolute;
+            top: 0;
+            right: 0;
+            font-size: 1.5rem;
+            line-height: 1;
+            letter-spacing: 0;
+            padding: .5rem .6rem;
+        }
+
+        .am-tray {
+            position: relative;
+            flex: none;
+            margin: auto 0 1.25rem;
+            touch-action: none;
+        }
+
+            .am-tray.shake {
+                animation: am-shake .35s ease;
+            }
+
+        .tile {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: var(--ts);
+            height: var(--ts);
+            cursor: grab;
+            will-change: transform;
+            transition: transform .4s cubic-bezier(.3, 1.3, .5, 1) var(--sd, 0ms);
+        }
+
+        .am-tray.still .tile,
+        .tile.lifted {
+            transition: none;
+        }
+
+        .tile.lifted {
+            z-index: 2;
+            cursor: grabbing;
+        }
+
+        .am-sheet.done .tile {
+            cursor: default;
+        }
+
+        .face {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            padding-top: .08em;
+            border-radius: calc(var(--ts) * .14);
+            background: var(--tile);
+            color: var(--tile-ink);
+            font: 700 calc(var(--ts) * .5)/1 'Libre Baskerville', Georgia, serif;
+            text-transform: uppercase;
+            -webkit-user-select: none;
+            user-select: none;
+            box-shadow: inset 0 calc(var(--ts) * -.06) 0 rgba(0, 0, 0, .14), inset 0 1px 0 rgba(255, 255, 255, .35), 0 1px 2px rgba(0, 0, 0, .2);
+            transition: transform .2s ease, box-shadow .2s ease, background-color .35s ease var(--hd, 0ms), color .35s ease var(--hd, 0ms);
+            animation: am-in .45s cubic-bezier(.3, 1.4, .5, 1) var(--d, 0ms) backwards;
+        }
+
+            .face sub {
+                position: absolute;
+                right: 11%;
+                bottom: 9%;
+                font-size: calc(var(--ts) * .19);
+                font-weight: 400;
+                line-height: 1;
+                opacity: .75;
+            }
+
+        .am-tray.small .face sub {
+            display: none;
+        }
+
+        .tile.lifted .face {
+            transform: scale(1.12) rotate(var(--rot, 0deg));
+            box-shadow: inset 0 calc(var(--ts) * -.06) 0 rgba(0, 0, 0, .14), inset 0 1px 0 rgba(255, 255, 255, .35), 0 12px 24px rgba(0, 0, 0, .25);
+        }
+
+        .tile.sel .face {
+            transform: translateY(-18%);
+            box-shadow: inset 0 calc(var(--ts) * -.06) 0 rgba(0, 0, 0, .14), 0 0 0 2px var(--muted), 0 8px 16px rgba(0, 0, 0, .18);
+        }
+
+        .tile.placed .face::after {
+            content: '';
+            position: absolute;
+            left: 22%;
+            right: 22%;
+            bottom: calc(var(--ts) * -.18);
+            height: 2px;
+            border-radius: 1px;
+            background: var(--muted);
+        }
+
+        .tile.solved .face {
+            background: var(--win);
+            color: var(--win-ink);
+        }
+
+        .tile.hop .face {
+            animation: am-hop .6s cubic-bezier(.3, .7, .4, 1) var(--hd, 0ms);
+        }
+
+        .tile.revealed .face {
+            background: var(--rule);
+            color: var(--muted);
+            box-shadow: none;
+        }
+
+        .am-msg {
+            min-height: 1.75em;
+            text-align: center;
+            font-size: .9rem;
+            font-style: italic;
+            color: var(--muted);
+        }
+
+        .am-sheet.done .am-msg {
+            color: var(--good);
+        }
+
+        .am-sheet.revealed .am-msg {
+            color: var(--muted);
+        }
+
+        .am-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1.25rem;
+            margin-top: auto;
+            padding-top: 1.5rem;
+        }
+
+        .am-sheet.done .am-next {
+            color: var(--text);
+        }
+
+        @keyframes am-in {
+            from { opacity: 0; transform: translateY(30%) scale(.6); }
+        }
+
+        @keyframes am-hop {
+            0%   { transform: none; }
+            30%  { transform: translateY(-42%) scale(1.06); }
+            55%  { transform: translateY(0) scale(1.05, .9); }
+            72%  { transform: translateY(-9%); }
+            100% { transform: none; }
+        }
+
+        @keyframes am-shake {
+            20% { transform: translateX(-6px); }
+            40% { transform: translateX(5px); }
+            60% { transform: translateX(-3px); }
+            80% { transform: translateX(2px); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .tile, .face, .am-sheet, .am-backdrop {
+                transition-duration: .01s !important;
+            }
+
+            .face, .tile.hop .face, .am-tray.shake {
+                animation: none !important;
+            }
         }
 
         .solution {
@@ -231,6 +611,10 @@
         <section class="anagrams">
             <h1>Anagrams</h1>
             <p class="intro">Each word below can be rearranged into <em>exactly one</em> other English word. Find it.</p>
+            <div class="progress" hidden>
+                <span class="count"></span>
+                <button class="reset-all">Reset progress</button>
+            </div>
             <div class="word-group">
                 <h3>4 letters</h3>
                 <ul class="words"><li data-a="YWNlcw==">case</li><!-- <li>else</li> --><li data-a="b3B1cw==">soup</li><li data-a="cHlyZQ==">prey</li><li data-a="aWNvbg==">coin</li><li data-a="cGFsbQ==">lamp</li><li data-a="ZGVhZg==">fade</li><li data-a="aW5jaA==">chin</li><li data-a="aGVpcg==">hire</li></ul>
@@ -265,47 +649,457 @@
             </div>
         </section>
     </main>
+    <div class="am" hidden>
+        <div class="am-backdrop"></div>
+        <div class="am-sheet" role="dialog" aria-modal="true" aria-labelledby="am-word" tabindex="-1">
+            <div class="am-head">
+                <div class="am-grip"></div>
+                <span class="am-word" id="am-word"></span>
+                <button class="am-close" aria-label="Close">×</button>
+            </div>
+            <div class="am-tray"></div>
+            <p class="am-msg" aria-live="polite"></p>
+            <div class="am-controls">
+                <button data-act="shuffle">Shuffle</button>
+                <button data-act="reset">Reset</button>
+                <button data-act="next" class="am-next">Next →</button>
+            </div>
+        </div>
+    </div>
     <script>
         const decode = s => new TextDecoder().decode(Uint8Array.from(atob(s), c => c.charCodeAt(0)));
 
         function toggle(el, show) {
-            if (el.matches('.words li')) {
-                if (!el.dataset.w) el.dataset.w = el.textContent;
-                const on = show ?? !el.classList.contains('flipped');
-                el.textContent = on ? decode(el.dataset.a) : el.dataset.w;
-                el.classList.toggle('flipped', on);
-            } else {
-                const section = el.closest('.puzzle');
-                let sol = section.querySelector('.solution');
-                if (!sol) {
-                    sol = document.createElement('div');
-                    sol.className = 'solution';
-                    sol.hidden = true;
-                    sol.innerHTML = decode(section.dataset.s);
-                    section.append(sol);
-                }
-                sol.hidden = !(show ?? sol.hidden);
+            const section = el.closest('.puzzle');
+            let sol = section.querySelector('.solution');
+            if (!sol) {
+                sol = document.createElement('div');
+                sol.className = 'solution';
+                sol.hidden = true;
+                sol.innerHTML = decode(section.dataset.s);
+                section.append(sol);
             }
+            sol.hidden = !(show ?? sol.hidden);
         }
 
-        // three slow taps (0.4–1.5s apart) on the same number or word
+        // three slow taps (0.4–1.5s apart) on the same element
         let last = { el: null, t: 0, n: 0 };
-        document.addEventListener('click', e => {
-            const el = e.target.closest('h2 .num, .words li[data-a]');
-            if (!el) return;
-            const dt = e.timeStamp - last.t;
+        function slowTriple(el, t) {
+            const dt = t - last.t;
             last = (el === last.el && dt > 400 && dt < 1500)
-                ? { el, t: e.timeStamp, n: last.n + 1 }
-                : { el, t: e.timeStamp, n: 1 };
-            if (last.n === 3) { toggle(el); last.n = 0; }
+                ? { el, t, n: last.n + 1 }
+                : { el, t, n: 1 };
+            if (last.n < 3) return false;
+            last.n = 0;
+            return true;
+        }
+
+        document.addEventListener('click', e => {
+            const num = e.target.closest('h2 .num');
+            if (num && slowTriple(num, e.timeStamp)) toggle(num);
+            const li = e.target.closest('.words li[data-a]');
+            if (li) openAnagram(li);
         });
 
+        // ---- word list state ----
+
+        const words = [...document.querySelectorAll('.words li[data-a]')];
+        const store = {
+            all() { try { return JSON.parse(localStorage.getItem('anagrams')) || {}; } catch { return {}; } },
+            set(w, v) { try { const s = store.all(); s[w] = v; localStorage.setItem('anagrams', JSON.stringify(s)); } catch {} },
+        };
+
+        function markWord(li, state) {
+            li.innerHTML = `${li.dataset.w}<span class="ans"> → ${decode(li.dataset.a)}</span>`;
+            li.classList.remove('solved', 'revealed');
+            li.classList.add(state);
+            updateProgress();
+        }
+
+        const progress = document.querySelector('.progress');
+        const resetAll = progress.querySelector('.reset-all');
+        let armTimer = 0;
+
+        function updateProgress() {
+            const n = words.filter(li => li.matches('.solved, .revealed')).length;
+            progress.hidden = !n;
+            progress.querySelector('.count').textContent = `${n} of ${words.length} found`;
+        }
+
+        // two taps to wipe, so a stray tap can't lose progress
+        resetAll.addEventListener('click', () => {
+            if (!resetAll.classList.contains('armed')) {
+                resetAll.classList.add('armed');
+                resetAll.textContent = 'Tap again to reset';
+                armTimer = setTimeout(disarm, 3000);
+                return;
+            }
+            disarm();
+            try { localStorage.removeItem('anagrams'); } catch {}
+            if (location.hash === '#answers') history.replaceState(null, '', location.pathname);
+            for (const li of words) {
+                li.textContent = li.dataset.w;
+                li.classList.remove('solved', 'revealed');
+            }
+            updateProgress();
+        });
+
+        function disarm() {
+            clearTimeout(armTimer);
+            resetAll.classList.remove('armed');
+            resetAll.textContent = 'Reset progress';
+        }
+
+        const saved = store.all();
+        for (const li of words) {
+            li.dataset.w = li.textContent.trim();
+            li.tabIndex = 0;
+            li.setAttribute('role', 'button');
+            if (saved[li.dataset.w]) markWord(li, saved[li.dataset.w]);
+        }
+
         const revealAll = () => {
-            if (location.hash === '#answers')
-                document.querySelectorAll('h2 .num, .words li[data-a]').forEach(el => toggle(el, true));
+            if (location.hash !== '#answers') return;
+            document.querySelectorAll('h2 .num').forEach(el => toggle(el, true));
+            words.forEach(li => li.classList.contains('solved') || markWord(li, 'revealed'));
         };
         revealAll();
         addEventListener('hashchange', revealAll);
+
+        // ---- interactive anagram ----
+
+        const SCORES = { a: 1, b: 3, c: 3, d: 2, e: 1, f: 4, g: 2, h: 4, i: 1, j: 8, k: 5, l: 1, m: 3,
+                         n: 1, o: 1, p: 3, q: 10, r: 1, s: 1, t: 1, u: 1, v: 4, w: 4, x: 8, y: 4, z: 10 };
+        const am = document.querySelector('.am');
+        const sheet = am.querySelector('.am-sheet');
+        const head = am.querySelector('.am-head');
+        const wordEl = am.querySelector('.am-word');
+        const tray = am.querySelector('.am-tray');
+        const msg = am.querySelector('.am-msg');
+        const finePointer = matchMedia('(hover: hover) and (pointer: fine)').matches;
+        const hint = finePointer ? 'Drag the tiles, or just type.' : 'Drag the tiles, or tap two to swap.';
+        const cheers = ['Nice.', 'Got it.', 'Yes!', 'Lovely.', 'There it is.'];
+
+        let cur = null;   // { li, word, answer, order: [{el, ch, i}], placed, sel, done }
+        let geo = { size: 0, step: 0, offset: 0 };
+        let drag = null;
+        let closeTimer = 0;
+
+        const clamp = (x, lo, hi) => Math.min(hi, Math.max(lo, x));
+        const spelled = () => cur.order.map(t => t.ch).join('');
+
+        function openAnagram(li) {
+            clearTimeout(closeTimer);
+            drag = null;
+            const word = li.dataset.w;
+            cur = { li, word, answer: decode(li.dataset.a), order: [], placed: 0, sel: null, done: null };
+            wordEl.textContent = word;
+            tray.replaceChildren();
+            cur.order = [...word].map((ch, i) => {
+                const el = document.createElement('div');
+                el.className = 'tile';
+                el.innerHTML = `<span class="face">${ch}<sub>${SCORES[ch] ?? ''}</sub></span>`;
+                el.style.setProperty('--d', `${60 + i * 28}ms`);
+                tray.append(el);
+                return { el, ch, i };
+            });
+            setDone(null);
+
+            const prior = li.classList.contains('solved') ? 'solved'
+                        : li.classList.contains('revealed') ? 'revealed' : null;
+            if (prior) {
+                arrange(cur.answer);
+                finish(prior, false);
+            }
+
+            if (am.hidden) {
+                am.hidden = false;
+                document.documentElement.style.overflow = 'hidden';
+                requestAnimationFrame(() => requestAnimationFrame(() => am.classList.add('open')));
+                sheet.focus({ preventScroll: true });
+            }
+            measure();
+            layout(true);
+        }
+
+        function closeAnagram() {
+            if (!cur) return;
+            const li = cur.li;
+            cur = null;
+            drag = null;
+            am.classList.remove('open');
+            closeTimer = setTimeout(() => {
+                am.hidden = true;
+                document.documentElement.style.overflow = '';
+            }, 380);
+            li.focus({ preventScroll: true });
+        }
+
+        function measure() {
+            const w = tray.clientWidth, n = cur.order.length;
+            const size = Math.min(64, w / (n + (n - 1) * .14));
+            const gap = size * .14;
+            geo = { size, step: size + gap, offset: (w - n * size - (n - 1) * gap) / 2 };
+            tray.style.setProperty('--ts', `${size}px`);
+            tray.style.height = `${size}px`;
+            tray.classList.toggle('small', size < 36);
+        }
+
+        function layout(instant) {
+            if (instant) tray.classList.add('still');
+            cur.order.forEach((t, i) => {
+                if (drag?.moved && drag.t === t) return;
+                t.el.style.transform = `translate(${geo.offset + i * geo.step}px, 0)`;
+            });
+            if (instant) { tray.offsetWidth; tray.classList.remove('still'); }
+            tray.setAttribute('aria-label', `Tiles: ${spelled()}`);
+        }
+
+        // ripple a reorder from left to right
+        function stagger(ms) {
+            cur.order.forEach((t, i) => t.el.style.setProperty('--sd', `${i * ms}ms`));
+            layout();
+            setTimeout(() => cur?.order.forEach(t => t.el.style.removeProperty('--sd')), 450 + cur.order.length * ms);
+        }
+
+        // put tiles in the order of string s
+        function arrange(s) {
+            const pool = [...cur.order];
+            cur.order = [...s].map(ch => pool.splice(pool.findIndex(t => t.ch === ch), 1)[0]);
+        }
+
+        function setDone(state) {
+            cur.done = state;
+            sheet.classList.toggle('done', !!state);
+            sheet.classList.toggle('revealed', state === 'revealed');
+            am.querySelectorAll('[data-act=shuffle]').forEach(b => b.disabled = !!state);
+            msg.textContent = state === 'solved' ? cheers[Math.random() * cheers.length | 0]
+                            : state === 'revealed' ? 'Revealed.' : hint;
+            if (!state) cur.order.forEach(t => t.el.classList.remove('solved', 'revealed', 'hop'));
+        }
+
+        function finish(state, animate = true) {
+            clearSel();
+            cur.placed = 0;
+            updatePlaced();
+            setDone(state);
+            cur.order.forEach((t, i) => {
+                t.el.style.setProperty('--hd', animate ? `${(state === 'solved' ? 80 : 380) + i * 45}ms` : '0ms');
+                t.el.classList.add(state);
+                if (animate && state === 'solved') t.el.classList.add('hop');
+            });
+            if (!animate) return;
+            if (state === 'solved') navigator.vibrate?.([10, 50, 10]);
+            if (!cur.li.classList.contains('solved')) {
+                markWord(cur.li, state);
+                store.set(cur.word, state);
+            }
+        }
+
+        function check() {
+            if (!cur.done && spelled() === cur.answer) finish('solved');
+        }
+
+        function clearSel() {
+            cur.sel?.el.classList.remove('sel');
+            cur.sel = null;
+        }
+
+        function updatePlaced() {
+            cur.order.forEach((t, i) => t.el.classList.toggle('placed', i < cur.placed));
+        }
+
+        function nudge() {
+            tray.classList.remove('shake');
+            tray.offsetWidth;
+            tray.classList.add('shake');
+        }
+
+        function tapTile(t) {
+            if (!cur.sel) { cur.sel = t; t.el.classList.add('sel'); return; }
+            if (cur.sel === t) { clearSel(); return; }
+            const o = cur.order, a = o.indexOf(cur.sel), b = o.indexOf(t);
+            [o[a], o[b]] = [o[b], o[a]];
+            clearSel();
+            cur.placed = 0;
+            updatePlaced();
+            layout();
+            check();
+        }
+
+        function typeLetter(ch) {
+            const o = cur.order;
+            const j = o.findIndex((t, i) => i >= cur.placed && t.ch === ch);
+            if (j < 0) return nudge();
+            o.splice(cur.placed, 0, ...o.splice(j, 1));
+            cur.placed++;
+            clearSel();
+            updatePlaced();
+            layout();
+            check();
+            if (!cur.done && cur.placed === o.length) nudge();
+        }
+
+        function shuffle() {
+            const fixed = cur.order.slice(0, cur.placed);
+            const before = spelled();
+            let rest;
+            for (let k = 0; k < 30; k++) {
+                rest = cur.order.slice(cur.placed);
+                for (let i = rest.length - 1; i > 0; i--) {
+                    const j = Math.random() * (i + 1) | 0;
+                    [rest[i], rest[j]] = [rest[j], rest[i]];
+                }
+                const s = [...fixed, ...rest].map(t => t.ch).join('');
+                if (s !== before && s !== cur.answer) break;
+            }
+            cur.order = [...fixed, ...rest];
+            clearSel();
+            stagger(22);
+        }
+
+        function reset() {
+            setDone(null);
+            clearSel();
+            cur.placed = 0;
+            updatePlaced();
+            cur.order.sort((a, b) => a.i - b.i);
+            stagger(22);
+        }
+
+        function next() {
+            const i = words.indexOf(cur.li);
+            const rest = [...words.slice(i + 1), ...words.slice(0, i)];
+            const li = rest.find(w => !w.classList.contains('solved') && !w.classList.contains('revealed')) ?? rest[0];
+            if (li) openAnagram(li);
+        }
+
+        // dragging tiles
+        tray.addEventListener('pointerdown', e => {
+            const el = e.target.closest('.tile');
+            if (!el || !cur || cur.done || drag) return;
+            e.preventDefault();
+            el.setPointerCapture(e.pointerId);
+            const t = cur.order.find(t => t.el === el);
+            cur.order.forEach(t => t.el.style.removeProperty('--sd'));
+            drag = { t, id: e.pointerId, sx: e.clientX, sy: e.clientY, lastX: e.clientX,
+                     x0: geo.offset + cur.order.indexOf(t) * geo.step, moved: false, rot: 0 };
+        });
+
+        tray.addEventListener('pointermove', e => {
+            if (!drag || e.pointerId !== drag.id) return;
+            const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+            if (!drag.moved) {
+                if (Math.hypot(dx, dy) < 6) return;
+                drag.moved = true;
+                clearSel();
+                cur.placed = 0;
+                updatePlaced();
+                drag.t.el.classList.add('lifted');
+            }
+            drag.rot = drag.rot * .7 + clamp((e.clientX - drag.lastX) * 1.5, -12, 12) * .3;
+            drag.lastX = e.clientX;
+            const x = drag.x0 + dx;
+            drag.t.el.style.transform = `translate(${x}px, ${dy}px)`;
+            drag.t.el.style.setProperty('--rot', `${drag.rot}deg`);
+            const o = cur.order, from = o.indexOf(drag.t);
+            const to = clamp(Math.round((x - geo.offset) / geo.step), 0, o.length - 1);
+            if (to !== from) {
+                o.splice(to, 0, ...o.splice(from, 1));
+                layout();
+            }
+        });
+
+        function drop(e) {
+            if (!drag || e.pointerId !== drag.id) return;
+            const d = drag;
+            drag = null;
+            if (!d.moved) {
+                if (e.type === 'pointerup') tapTile(d.t);
+                return;
+            }
+            d.t.el.classList.remove('lifted');
+            d.t.el.style.setProperty('--rot', '0deg');
+            layout();
+            check();
+        }
+        tray.addEventListener('pointerup', drop);
+        tray.addEventListener('pointercancel', drop);
+        tray.addEventListener('lostpointercapture', drop);
+
+        // swipe the sheet down to dismiss
+        let swipe = null;
+        head.addEventListener('pointerdown', e => {
+            if (e.target.closest('button')) return;
+            swipe = { id: e.pointerId, y: e.clientY, dy: 0 };
+        });
+        head.addEventListener('pointermove', e => {
+            if (!swipe || e.pointerId !== swipe.id) return;
+            swipe.dy = Math.max(0, e.clientY - swipe.y);
+            if (swipe.dy > 4) {
+                if (!head.hasPointerCapture(e.pointerId)) head.setPointerCapture(e.pointerId);
+                sheet.classList.add('dragging');
+                sheet.style.transform = `translateY(${swipe.dy}px)`;
+            }
+        });
+        const endSwipe = e => {
+            if (!swipe || e.pointerId !== swipe.id) return;
+            const { dy } = swipe;
+            swipe = null;
+            sheet.classList.remove('dragging');
+            sheet.style.transform = '';
+            if (dy > 4) last.n = 0;   // a drag isn't a tap
+            if (dy > 90) closeAnagram();
+        };
+        head.addEventListener('pointerup', endSwipe);
+        head.addEventListener('pointercancel', endSwipe);
+
+        // secret: three slow taps on the word reveal the answer
+        wordEl.addEventListener('click', e => {
+            if (!cur || cur.done || !slowTriple(wordEl, e.timeStamp)) return;
+            clearSel();
+            cur.placed = 0;
+            updatePlaced();
+            arrange(cur.answer);
+            stagger(40);
+            finish('revealed');
+        });
+
+        am.querySelector('.am-backdrop').addEventListener('click', closeAnagram);
+        am.querySelector('.am-close').addEventListener('click', closeAnagram);
+        am.querySelector('.am-controls').addEventListener('click', e => {
+            const act = e.target.closest('button')?.dataset.act;
+            if (!act || !cur) return;
+            ({ shuffle, reset, next })[act]();
+            sheet.focus({ preventScroll: true });
+        });
+
+        addEventListener('keydown', e => {
+            if (!cur) {
+                if ((e.key === 'Enter' || e.key === ' ') && e.target.matches?.('.words li[data-a]')) {
+                    e.preventDefault();
+                    openAnagram(e.target);
+                }
+                return;
+            }
+            if (e.metaKey || e.ctrlKey || e.altKey) return;
+            const onButton = document.activeElement?.matches('.am button');
+            const k = e.key;
+            if (k === 'Escape') closeAnagram();
+            else if (k === 'Enter' && !onButton) { if (cur.done) next(); }
+            else if (k === ' ' && !onButton) { e.preventDefault(); if (!cur.done) shuffle(); }
+            else if (cur.done || drag) return;
+            else if (k === 'Backspace') { if (cur.placed) { cur.placed--; updatePlaced(); } }
+            else if (/^[a-z]$/i.test(k)) typeLetter(k.toLowerCase());
+            else return;
+            e.preventDefault();
+        });
+
+        addEventListener('resize', () => {
+            if (!cur) return;
+            measure();
+            layout(true);
+        });
     </script>
 </body>
 </html>
